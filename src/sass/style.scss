@@ -1,7 +1,88 @@
+@import url("https://overpass-30e2.kxcdn.com/overpass.css");
+body{
+	// font-family:'Sulphur Point';
+	font-family:'overpass';
+font-weight:800;
+}
+
+// @font-face {
+// 	font-family: 'Sulphur Point';
+// 	font-style: normal;
+// 	font-weight:400m;
+// 	src: local('Sulphur Point'),local('Sulphur Point'),url('assets/fonts/SulphurPoint-Regular.ttf') format('truetype');
+// }
+
+
+/* SCSS RGB */
+$army-green: rgba(75, 83, 32, 1);
+$persimmon: rgba(236, 88, 0, 1);
+$dark-sienna: rgba(51, 15, 10, 1);
+$flax: rgba(239, 221, 141, 1);
+$lemon-yellow-crayola: rgba(244, 253, 175, 1);
+$ebl-white:rgb(233,233,233);
+$celadon-blue: rgba(36, 123, 160, 1);
+$sky-blue-crayola: rgba(120, 227, 253, 1);
+$barn-red: rgba(111, 26, 7, 1);
+
+$proposed:$celadon-blue;
+
+
+
+a{
+	color:$persimmon;
+	&:hover{color:darken($persimmon,12%);}
+}
+
+.ebl-kick{
+left:90%;
+}
+
+.is-disabled{
+color:grey;
+cursor:not-allowed;
+}
+
+.ebl-nav-on
+{
+	color:$persimmon;
+	&:hover{color:darken($persimmon,12%);}
+}
+.ebl-footer-on
+{
+	color:$dark-sienna;
+	&:hover{color:lighten($dark-sienna,12%);}
+}
+
+.ebl-bg{
+	background-color:$army-green;
+	a{color:$ebl-white;
+		&:hover{color:$persimmon;}
+	}
+}
+
 #map{
   position:absolute;top:0;height:100%;width:100%;z-index:0;
 }
+#vap{
+	position:relative;top:0;left:0;width:100%;height:100vh;width:100%;
+// height:600pc;width:800px;
+// width:640px;height:480px;
+}
+#vap-copy{
+height:80px;
+}
 
+#ebl-modal-dropzone{
+	.modal-background{
+		background-color:$lemon-yellow-crayola;
+		color:$dark-sienna;
+	}
+}
+
+.ebl-button{
+	color:$persimmon;
+	&:hover{color:darken($persimmon,12%);}
+}
 .ebl-panel{
 	width:33%;
 	position:relative;
@@ -16,7 +97,11 @@
 
 .footer{
 	z-index: 7;width:100%;position:absolute;bottom:0;left:0;
-	height:5vh;padding:1vh 0 0 0;margin:0;
+	height:5vh;margin:0;
+}
+
+#modal-credits{
+	color:white;font-weight:800;
 }
 
 
@@ -52,3 +137,5 @@
 	animation-duration: 20s;
 	animation-iteration-count:1;
 }
+
+@import 'assets/fontello/css/fontello.css'
