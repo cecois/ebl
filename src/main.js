@@ -12,6 +12,10 @@ import vueTopprogress from 'vue-top-progress'
 // 	SportsLib
 // } from '@sports-alliance/sports-lib';
 
+const FLEXPOLY = require('@mapbox/polyline');
+const PENC = require('polyline-encoded')
+const HEREFLEX = require('./assets/here-flexpolyline.js')
+
 const TURFSIMPLE = require('@turf/simplify').default
 const TURFCLEAN = require('@turf/clean-coords').default
 const TURFLENGTH = require('@turf/length').default
@@ -19,25 +23,31 @@ const TURFMETA = require('@turf/meta')
 const TURFBUFFER = require('@turf/buffer').default
 const TURFPTGRID = require('@turf/point-grid').default
 const TURFCOMBINE = require('@turf/combine').default
+const TURFDISTANCE = require('@turf/distance').default
 const TURFNEARESTPOINT = require('@turf/combine').default
 const TURFDIFF = require('@turf/difference').default
 const TURFINTERSECT = require('@turf/intersect').default
 const TURFENVELOPE = require('@turf/envelope').default
-// const TURFSHORTESTPATH = require('@turf/shortest-path').default
+	// const TURFSHORTESTPATH = require('@turf/shortest-path').default
 const TURFEXPLODE = require('@turf/explode').default
 const TURFSAMPLE = require('@turf/sample').default
 const TURFBOOLEANPOINTINPOLYGON = require('@turf/boolean-point-in-polygon').default
 const TURFBOOLEANWITHIN = require('@turf/boolean-within').default
 const TURFUNION = require('@turf/union').default
+const TURFFLIP = require('@turf/union').default
 const TURFBBOX = require('@turf/bbox').default
 const TURFCENTER = require('@turf/center').default
-	const TURFLINEINTERSECT = require('@turf/line-intersect').default
+const TURFLINEINTERSECT = require('@turf/line-intersect').default
 	// const TURFLINEOVERLAP = require('@turf/line-overlap').default
 const TURFBBOXCLIP = require('@turf/bbox-clip').default
 const TURFLINESPLIT = require('@turf/line-split').default
 const TURFPOLYGONTOLINE = require('@turf/polygon-to-line').default
 const TURFNEARESTPOINTONLINE = require('@turf/nearest-point-on-line').default
-	// const TURFPOLYGONIZE = require('@turf/polygonize').default
+const TURFPOINTTOLINEDISTANCE = require('@turf/point-to-line-distance').default
+
+
+
+// const TURFPOLYGONIZE = require('@turf/polygonize').default
 const TURFH = require('@turf/helpers')
 const TURFM = require('@turf/meta')
 	// const TURFP2L = require('@turf/polygon-to-line')
@@ -54,19 +64,42 @@ Vue.use(vueTopprogress, {
 	color: "rgba(236, 88, 0, 1)"
 })
 Vue.config.productionTip = false;
+
+
+Object.defineProperty(Vue.prototype, '$PENC', {
+	value: PENC
+})
+
+Object.defineProperty(Vue.prototype, '$MBFLEXPOLY', {
+	value: FLEXPOLY
+})
+
+Object.defineProperty(Vue.prototype, '$HEREFLEX', {
+	value: HEREFLEX
+})
+
 Object.defineProperty(Vue.prototype, '$MOMENT', {
 	value: moment
 })
+
+Object.defineProperty(Vue.prototype, '$TURF_flip', {
+	value: TURFFLIP
+})
+
 Object.defineProperty(Vue.prototype, '$TURF_center', {
 	value: TURFCENTER
 })
-// Object.defineProperty(Vue.prototype, '$TURF_shortestpath', {
-// 	value: TURFSHORTESTPATH
-// })
-Object.defineProperty(Vue.prototype, '$TURF_nearestpoint', {
-		value: TURFNEARESTPOINT
+
+Object.defineProperty(Vue.prototype, '$TURF_pointtolinedistance', {
+		value: TURFPOINTTOLINEDISTANCE
 	})
-	Object.defineProperty(Vue.prototype, '$TURF_lineintersect', {
+	// Object.defineProperty(Vue.prototype, '$TURF_shortestpath', {
+	// 	value: TURFSHORTESTPATH
+	// })
+Object.defineProperty(Vue.prototype, '$TURF_nearestpoint', {
+	value: TURFNEARESTPOINT
+})
+Object.defineProperty(Vue.prototype, '$TURF_lineintersect', {
 		value: TURFLINEINTERSECT
 	})
 	// Object.defineProperty(Vue.prototype, '$TURF_lineoverlap', {
@@ -74,6 +107,9 @@ Object.defineProperty(Vue.prototype, '$TURF_nearestpoint', {
 	// })
 Object.defineProperty(Vue.prototype, '$TURF_linesplit', {
 	value: TURFLINESPLIT
+})
+Object.defineProperty(Vue.prototype, '$TURF_distance', {
+	value: TURFDISTANCE
 })
 
 Object.defineProperty(Vue.prototype, '$TURF_nearestpointonline', {
@@ -98,7 +134,7 @@ Object.defineProperty(Vue.prototype, '$TURFSIMPLE', {
 Object.defineProperty(Vue.prototype, '$TURFEXPLODE', {
 	value: TURFEXPLODE
 })
-Object.defineProperty(Vue.prototype, '$TURFPOLYGONTOLINE', {
+Object.defineProperty(Vue.prototype, '$TURF_polygontoline', {
 	value: TURFPOLYGONTOLINE
 })
 Object.defineProperty(Vue.prototype, '$TURFCOMBINE', {

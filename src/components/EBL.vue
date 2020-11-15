@@ -22,6 +22,7 @@
             <span v-if="meta.historyLength">{{Number(Math.round(meta.historyLength+'e'+1)+'e-'+1)}}km down of </span>&nbsp;
             <span v-if="meta.centerlinesLength">{{`${Number(Math.round(meta.centerlinesLength+'e'+1)+'e-'+1)}`}}km total</span>
             <span v-if="meta.proposedLength">&nbsp;({{`${Number(Math.round(meta.proposedLength+'e'+1)+'e-'+1)}`}}km proposed)</span>
+            <span v-if="meta.distanceToBorder">&nbsp;({{`${Number(Math.round(meta.distanceToBorder+'e'+1)+'e-'+1)}`}}km from border)</span>
           </div>
         </div>
       </div>
@@ -181,6 +182,7 @@ export default {
   },
   mounted: function() {
     this.loadings.map = true;
+
     this.konsole.push({ msg: new Date(), klass: 'is-info', timeout: 20, timeout: 20 })
 
 
@@ -190,7 +192,18 @@ export default {
       center: [42, -72],
       attributionControl: false,
       zoom: 11
-    });
+    }).on('click', e => {
+
+      L.popup()
+        .setLatLng(e.latlng)
+        .setContent(
+          `<div class="heading">${e.latlng.lng},${e.latlng.lat}</div>
+                    <div class="heading">${e.latlng.lat},${e.latlng.lng}</div>`
+        )
+        .openOn(this.MAP);
+
+
+    })
 
 
     this.VAP = new L.Map("vap", {
@@ -222,6 +235,8 @@ export default {
       .style.zIndex = (p + 6);
     this.MAP.createPane('pnDebug')
       .style.zIndex = (p + 1);
+    this.MAP.createPane('pnTrace')
+      .style.zIndex = (p + 7);
 
     this.MAP.fitBounds(
       [
@@ -243,6 +258,9 @@ export default {
 
     if (!this.grpAdminGhost) {
       this.grpAdminGhost = new L.featureGroup({ pane: 'pnAdmin' }).addTo(this.MAP)
+    }
+    if (!this.grptrace) {
+      this.grptrace = new L.featureGroup({ pane: 'pnTrace' }).addTo(this.MAP)
     }
     if (!this.grpAdmin) {
       this.grpAdmin = new L.featureGroup({ pane: 'pnAdmin' }).addTo(this.MAP)
@@ -297,7 +315,7 @@ export default {
             style: this._STILE('brookline'),
             snapIgnore: true
           })
-          .addTo(this.grpAdmin);
+          // .addTo(this.grpAdmin);
 
       }) //axios.then
       .catch(e => {
@@ -314,6 +332,19 @@ export default {
             snapIgnore: true
           })
           .addTo(this.grpAdminGhost);
+
+
+        // let border = this.$TURF_polygontoline(this.grpAdminGhost.toGeoJSON())
+        // console.log("this.border", border);
+
+        // this.border = border
+        this.border = this.$TURF_polygontoline(this.grpAdminGhost.toGeoJSON().features[0])
+
+        // L.geoJSON(this.border, {
+        //     style: { color: `#4aa`, fill: false, width: 5, opacity: 1 },
+        //     snapIgnore: true
+        //   })
+        // .addTo(this.grpAdminGhost);
 
       }) //axios.then
       .then(r => {
@@ -399,13 +430,17 @@ export default {
 
         let vias = this.viasBack.length > 0 ? `/${this.viasBack.join('/')}/` : `/`
 
-        return this.startfinish && this.tracks.reetern ? `https://www.google.com/maps/dir/${this.startfinish.f.latitude},${this.startfinish.f.longitude}${vias}${this.startfinish.s.latitude},${this.startfinish.s.longitude}/data=!3m1!4b1!4m2!4m1!3e1` : null
+        return this.startfinish && this.tracks.reetern ? `https://www.google.com/maps/dir/${this.startfinish.f.latitude},${this.startfinish.f.longitude}${vias}42.348340,-71.128191/data=!3m1!4b1!4m2!4m1!3e1` : null
 
       } //gugulruvyew
   },
   data() {
     return {
       MAP: null,
+      border: null,
+      HERE: null,
+      traceFake: [{ order: 0, lng: -71.13502622151538901, lat: 42.33960105822190911 }, { order: 1, lng: -71.1358425097494802, lat: 42.3393732568542589 }, { order: 2, lng: -71.13671574832547151, lat: 42.3391264720392968 }, { order: 3, lng: -71.13760797034878181, lat: 42.33893663756625614 }, { order: 4, lng: -71.13851917581938267, lat: 42.33868985275130115 }, { order: 5, lng: -71.13992395091990772, lat: 42.33834815069982227 }, { order: 6, lng: -71.14087312328511814, lat: 42.33813933277947683 }, { order: 7, lng: -71.14180331220303799, lat: 42.33793051485912429 }, { order: 8, lng: -71.14201213012339053, lat: 42.33791153141181951 }, { order: 9, lng: -71.14229688183294797, lat: 42.33859493551477726 }, { order: 10, lng: -71.1425246832006053, lat: 42.33958207477460434 }, { order: 11, lng: -71.14233484872755753, lat: 42.34100583332242707 }, { order: 12, lng: -71.14484066377173122, lat: 42.34060718092904096 }, { order: 13, lng: -71.14459387895676912, lat: 42.33948715753808045 }, { order: 14, lng: -71.14438506103643078, lat: 42.33842408448904138 }, { order: 15, lng: -71.14411929277416391, lat: 42.3374369452292143 }, { order: 16, lng: -71.14677697539677581, lat: 42.33690540870469476 }, { order: 17, lng: -71.14960550904511649, lat: 42.33629793839095612 }],
+      trace: [],
       avoid: true,
       modalKick: false,
       layers: [],
@@ -413,7 +448,13 @@ export default {
       midPointsBack: [],
       viasOut: [],
       viasBack: [],
-      meta: { centerlinesLength: null, historyLength: null, proposedLength: null },
+      meta: {
+        within: true,
+        distanceToBorder: null,
+        centerlinesLength: null,
+        historyLength: null,
+        proposedLength: null
+      },
       startfinish: { s: { longitude: null, latitude: null }, f: { longitude: null, latitude: null } }, //og [long,lat]
       konsole: [],
       dropzone: { state: null, msg: null },
@@ -436,29 +477,44 @@ export default {
 
         if (this.grpProposed && this.grpProposed.toGeoJSON().features) {
 
-          /*        _______   _____       __  ____
-           _   __/  _/   | / ___/____  / / / / /_
-          | | / // // /| | \__ \/ __ \/ / / / __/
-          | |/ // // ___ |___/ / /_/ / /_/ / /_
-          |___/___/_/  |_/____/\____/\____/\__/
-*/
 
-          if (this.grpProposed.toGeoJSON().features.length == 1) {
+          if (this.grpProposed.toGeoJSON().features.length > 0) {
             // sample only works w/ a featurecollection made from the vertices
-            let fc = this.$TURFH.featureCollection(
+            let fco = this.$TURFH.featureCollection(
               this.$_.map(this.grpProposed.toGeoJSON().features[0].geometry.coordinates, (c, i) => {
                 return this.$TURFH.point(c, { name: i })
               })
             )
 
-            // draw the sample here
-            let sa = this.$_.map(this.$TURFSAMPLE(fc, 15).features, fea => {
+
+            let fcb = this.$TURFH.featureCollection(
+              this.$_.map(this.grpProposed.toGeoJSON().features[1].geometry.coordinates, (c, i) => {
+                return this.$TURFH.point(c, { name: i })
+              })
+            )
+
+            // draw the samples here
+            let sao = this.$_.map(this.$TURFSAMPLE(fco, 10).features, fea => {
+              return [fea.geometry.coordinates[1], fea.geometry.coordinates[0]]
+            })
+
+            let sab = this.$_.map(this.$TURFSAMPLE(fcb, 10).features, fea => {
               return [fea.geometry.coordinates[1], fea.geometry.coordinates[0]]
             })
 
             //but it comes in random order, so we reassociate an i using the vertex from which the sample wz drawn and order by it
-            let st = this.$_.map(this.$_.sortBy(this.$_.map(sa, s => {
-              let iv = this.$_.find(fc.features, fcfea => {
+            let sto = this.$_.map(this.$_.sortBy(this.$_.map(sao, s => {
+              let iv = this.$_.find(fco.features, fcfea => {
+                return (fcfea.geometry.coordinates[0] == s[1] && fcfea.geometry.coordinates[1] == s[0])
+
+              })
+              return { lat: s[0], lng: s[1], iv: iv.properties.name }
+            }), 'iv'), iv => {
+              return [iv.lat, iv.lng]
+            })
+
+            let stb = this.$_.map(this.$_.sortBy(this.$_.map(sab, s => {
+              let iv = this.$_.find(fcb.features, fcfea => {
                 return (fcfea.geometry.coordinates[0] == s[1] && fcfea.geometry.coordinates[1] == s[0])
 
               })
@@ -468,7 +524,8 @@ export default {
             })
 
             // finally we store them for others to use
-            this.viasOut = st;
+            this.viasOut = sto;
+            this.viasBack = stb;
           } //features is only 1 long
 
 
@@ -478,34 +535,34 @@ export default {
           | |/ / / /_/ /___/ / /_/ / ___ / /__/ ,<
           |___/_/\__,_//____/_____/_/  |_\___/_/|_|
           */
+          /*
+                    if (this.grpProposed.toGeoJSON().features.length == 2) {
+                      // sample only works w/ a featurecollection made from the vertices
+                      let bfc = this.$TURFH.featureCollection(
+                        this.$_.map(this.grpProposed.toGeoJSON().features[1].geometry.coordinates, (c, i) => {
+                          return this.$TURFH.point(c, { name: i })
+                        })
+                      )
 
-          if (this.grpProposed.toGeoJSON().features.length == 2) {
-            // sample only works w/ a featurecollection made from the vertices
-            let bfc = this.$TURFH.featureCollection(
-              this.$_.map(this.grpProposed.toGeoJSON().features[1].geometry.coordinates, (c, i) => {
-                return this.$TURFH.point(c, { name: i })
-              })
-            )
+                      // draw the sample here
+                      let bsa = this.$_.map(this.$TURFSAMPLE(bfc, 15).features, fea => {
+                        return [fea.geometry.coordinates[1], fea.geometry.coordinates[0]]
+                      })
 
-            // draw the sample here
-            let bsa = this.$_.map(this.$TURFSAMPLE(bfc, 15).features, fea => {
-              return [fea.geometry.coordinates[1], fea.geometry.coordinates[0]]
-            })
+                      //but it comes in random order, so we reassociate an i using the vertex from which the sample wz drawn and order by it
+                      let bst = this.$_.map(this.$_.sortBy(this.$_.map(bsa, s => {
+                        let iv = this.$_.find(bfc.features, fcfea => {
+                          return (fcfea.geometry.coordinates[0] == s[1] && fcfea.geometry.coordinates[1] == s[0])
 
-            //but it comes in random order, so we reassociate an i using the vertex from which the sample wz drawn and order by it
-            let bst = this.$_.map(this.$_.sortBy(this.$_.map(bsa, s => {
-              let iv = this.$_.find(bfc.features, fcfea => {
-                return (fcfea.geometry.coordinates[0] == s[1] && fcfea.geometry.coordinates[1] == s[0])
+                        })
+                        return { lat: s[0], lng: s[1], iv: iv.properties.name }
+                      }), 'iv'), iv => {
+                        return [iv.lat, iv.lng]
+                      })
 
-              })
-              return { lat: s[0], lng: s[1], iv: iv.properties.name }
-            }), 'iv'), iv => {
-              return [iv.lat, iv.lng]
-            })
-
-            // finally we store them for others to use
-            this.viasBack = bst;
-          }
+                      // finally we store them for others to use
+                      this.viasBack = bst;
+                    }*/
         } //features is two long (out and back)
 
       } //setveeahz
@@ -516,13 +573,11 @@ export default {
 
       // geoloc stuff can go here #returnto: navigator.geolocation.getCurrentPosition(success, error, options);
 
-      /*let s = navigator.geolocation.getCurrentPosition((p) => {
-        console.log('ploc', p)
+      /*navigator.geolocation.getCurrentPosition((p) => {
+        console.log('ploc:', p);
         return p;
       }, (err) => { console.error(err) }, {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
+        enableHighAccuracy: true
       })*/
 
       return { longitude: -71.135404, latitude: 42.339326 }
@@ -657,6 +712,9 @@ gen a random finish point
         case 'centerlines':
           return { color: `#4aa`, fill: false, width: 1, opacity: 0 }
           break;
+        case 'trace':
+          return { dashArray: "2 5 10", color: `#87D100`, fill: false, width: 8, opacity: .7 }
+          break;
         case 'incomingReturn':
           return { color: `rgba(120, 227, 253, 1)`, fill: false, dashArray: "2 5 10", opacity: .9, width: 5, weight: 8 }
           break;
@@ -760,6 +818,63 @@ gen a random finish point
       console.log(K);
 
     }, //konseoul
+    _FAKETRACE: function() {
+
+
+      var iz = 0;
+
+      var timerID = setInterval(() => {
+        if (iz <= this.traceFake.length - 1) {
+          let tf = this.traceFake[iz];
+          console.log("tf.order", tf.order);
+          iz++;
+          this.trace.push(tf ? tf : null)
+        } else {
+          timerID.clearInterval(timerID);
+        }
+      }, 2000);
+
+    },
+    _MAPTRACE: function() {
+      // console.log("_MAPTRACE");
+
+      if (this.trace.length > 0) {
+        this.grptrace.clearLayers();
+
+        let STYLS = this._STILE();
+        let mrt = this.$_.last(this.$_.compact(this.trace));
+        let bl = this.$TURF_polygontoline(this.grpAdminGhost.toGeoJSON().features[0])
+
+        // L.geoJSON(bl, { style: this._STILE('debug') }).addTo(this.grpDebug)
+
+        let np = this.$TURFH.point([mrt.lng, mrt.lat])
+
+        // L.geoJSON(np, { style: this._STILE('debug') }).addTo(this.grpDebug)
+
+        this.meta.within = this.$TURF_booleanwithin(np, this.grpAdminGhost.toGeoJSON().features[0]);
+        this.meta.distanceToBorder = this.$TURF_pointtolinedistance(np, bl.features[0], { units: 'kilometers' })
+
+
+        L.geoJSON(np, {
+          style: this._STILE(),
+          pointToLayer: function(feature, latlng) {
+            return new L.CircleMarker([latlng.lat, latlng.lng], { radius: 8 })
+          }
+        }).addTo(this.grptrace)
+
+        if (this.trace.length > 1) {
+          L.geoJSON(this.$TURFH.lineString(this.$_.map(this.$_.compact(this.trace), tr => {
+            return [tr.lng, tr.lat]
+          })), {
+            style: this._STILE('trace')
+          }).addTo(this.grptrace)
+        }
+
+      }
+
+      this._CONSEOUL()
+
+    },
     _MAPSTARTFINISH: function() {
 
       this._CONSEOUL('MAPSTARTFINISH', 'running')
@@ -1024,7 +1139,7 @@ gen a random finish point
       this.loadings.map = false;
       // this._BUFFERPROPOSAL()
       this._LAUDIT('grpProposed', true)
-      this._SETVIAS()
+        // this._SETVIAS()
       this._META()
     },
     _GETHISTORY: function() {
@@ -1039,15 +1154,41 @@ gen a random finish point
           })
       } //traxgeht
       ,
+    _GETHERE: function() {
+      /*
+      axios.get('https://router.hereapi.com/v8/routes?apiKey=P5Mhg-TNACXQ9g1bJwa64E-Pk6_aS79pwuQ6mMm7HZA&transportMode=car&origin=42.339326,-71.135404&destination=42.30518452583631,-71.16656392721339&return=polyline')
+      .then(resp=>{
+        this.HERE=resp.data
+      })
+      */
+      // let uri = 'https://router.hereapi.com/v8/routes?apiKey=P5Mhg-TNACXQ9g1bJwa64E-Pk6_aS79pwuQ6mMm7HZA&transportMode=car&origin=42.339326,-71.135404&destination=42.30518452583631,-71.16656392721339&return=polyline'
+      // let uri = `http://${this.$CONFIG.apiH}:${this.$CONFIG.apiP}/ebl/here`
+      let uri = 'https://router.hereapi.com/v8/routes?apiKey=P5Mhg-TNACXQ9g1bJwa64E-Pk6_aS79pwuQ6mMm7HZA&transportMode=car&origin=42.31977991129439,-71.12351417541505&destination=42.33780085046662,-71.1551856994629&return=polyline&avoid[areas]=bbox:-71.14754676818849,42.328537209663565,-71.13492965698244,42.32536441628998'
+
+      axios.get(uri).then(resp => {
+        console.log("resp", resp);
+        this.HERE = {
+          raw: resp.data,
+          decodedmb: this.$MBFLEXPOLY.decode(resp.data.routes[0].sections[0].polyline),
+          decodedhere: this.$HEREFLEX.decode(resp.data.routes[0].sections[0].polyline),
+          asGeo: this.$TURFH.lineString(this.$_.map(this.$HEREFLEX.decode(resp.data.routes[0].sections[0].polyline).polyline, c => {
+            return [c[1], c[0]]
+          })),
+          asGeoL: L.PolylineUtil.decode(resp.data.routes[0].sections[0].polyline),
+          decodedmbgeo: this.$MBFLEXPOLY.toGeoJSON(resp.data.routes[0].sections[0].polyline)
+        }
+      })
+
+
+
+    },
     _GETPROPOSED: function() {
 
       this.loadings.proposed = true
 
       let route = []
-      console.log("route", route);
 
       route.push([this.startfinish.s.longitude, this.startfinish.s.latitude])
-      console.log("route", route);
 
       if (this.midPointsOut.length > 0) {
         this.$_.each(this.midPointsOut, pair => {
@@ -1056,25 +1197,20 @@ gen a random finish point
       }
 
       route.push([this.startfinish.f.longitude, this.startfinish.f.latitude])
-      console.log("route", route);
 
       let tracksBufferedAsPoly = this.$TURFCOMBINE(this.tracks.buffered).features[0]
-      console.log("tracksBufferedAsPoly", tracksBufferedAsPoly);
       let brooklineBndryAsPoly = this.grpAdmin.toGeoJSON().features[0]
-      console.log("brooklineBndryAsPoly", brooklineBndryAsPoly);
-      // let lawtonr = this.$TURFBUFFER(this.$TURFH.point([-71.128191, 42.348340]), 200, { units: "meters" });
-      // let tracksBufferedAsPolyLawtoned = this.$TURFDIFF(tracksBufferedAsPoly, lawtonr)
+        // let lawtonr = this.$TURFBUFFER(this.$TURFH.point([-71.128191, 42.348340]), 200, { units: "meters" });
+        // let tracksBufferedAsPolyLawtoned = this.$TURFDIFF(tracksBufferedAsPoly, lawtonr)
 
       let allPoly = brooklineBndryAsPoly
-      console.log("allPoly", allPoly);
-      // this.$TURFUNION(tracksBufferedAsPolyLawtoned, brooklineBndryAsPoly)
+        // this.$TURFUNION(tracksBufferedAsPolyLawtoned, brooklineBndryAsPoly)
 
       // this one intersects the SF envelope with the all-poly
       // let tracksbufferedboxedclipped = this.$TURFINTERSECT(envelopedStartFinish, allPoly)
       // let avoidPoly = allPoly
       // let avoidPoly = this.$TURFDIFF(allPoly, lawtonr)
       let avoidPoly = allPoly
-      console.log("avoidPoly", avoidPoly);
 
 
       let proposal = this.tracks.buffered && this.avoid ? {
@@ -1148,6 +1284,100 @@ gen a random finish point
     _GETRETURN: function() {
 
       // this.loadings.reetern = true
+
+      let route = []
+
+      route.push([this.startfinish.f.longitude, this.startfinish.f.latitude])
+
+      if (this.midPointsBack.length > 0) {
+        this.$_.each(this.midPointsBack, pair => {
+          route.push([pair.lng, pair.lat])
+        })
+      }
+
+      route.push([-71.128191, 42.348340])
+
+      let tracksBufferedAsPoly = this.$TURFCOMBINE(this.tracks.buffered).features[0]
+
+      let brooklineBndryAsPoly = this.grpAdmin.toGeoJSON().features[0]
+      console.log("this.tracks.bufferedProposal", this.tracks.bufferedProposal);
+      let trackOut = this.$TURFCOMBINE(this.tracks.bufferedProposal).features[0];
+      console.log("trackOut", trackOut);
+
+      // let lawtonr = this.$TURFBUFFER(this.$TURFH.point([-71.128191, 42.348340]), 200, { units: "meters" });
+      // let tracksBufferedAsPolyLawtoned = this.$TURFDIFF(tracksBufferedAsPoly, lawtonr)
+
+      // let allPoly = brooklineBndryAsPoly
+      let allPoly = trackOut
+        // this.$TURFUNION(brooklineBndryAsPoly)
+
+      // this.$TURFUNION(tracksBufferedAsPolyLawtoned, brooklineBndryAsPoly)
+
+      // this one intersects the SF envelope with the all-poly
+      // let tracksbufferedboxedclipped = this.$TURFINTERSECT(envelopedStartFinish, allPoly)
+      // let avoidPoly = allPoly
+      // let avoidPoly = this.$TURFDIFF(allPoly, lawtonr)
+      let avoidPoly = allPoly
+      console.log("avoidPoly", avoidPoly);
+      console.log("avoidPoly", avoidPoly.geometry);
+
+
+      let proposal = this.tracks.buffered && this.avoid ? {
+        "elevation": true,
+        "coordinates": this.$_.compact(route),
+        "instructions": "false",
+        "options": {
+          "avoid_polygons": avoidPoly.geometry
+        },
+        "preference": "recommended",
+        "roundabout_exits": "true",
+        "suppress_warnings": "true"
+      } : {
+        "elevation": true,
+        "coordinates": this.$_.compact(route),
+        "instructions": "false",
+        "options": {
+          "avoid_polygons": avoidPoly.geometry
+
+        },
+        "preference": "recommended",
+        "roundabout_exits": "true",
+        "suppress_warnings": "true"
+      }
+
+
+      if (this.$CONFIG.mode == "1616") {
+        axios.get(`http://${this.$CONFIG.apiH}:${this.$CONFIG.apiP}/ebl/ors/back`).then(resp => {
+          this.tracks.reetern = resp.data;
+          this.loadings.reetern = false;
+        })
+      } else {
+        axios.post('http://api.openrouteservice.org/v2/directions/driving-car/geojson', proposal, {
+            headers: {
+              'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+              'Authorization': `${this.$CONFIG.ORSKey}`,
+              'Content-Type': 'application/json; charset=utf-8'
+            }
+          })
+          .then(resp => {
+
+            this.loadings.reetern = false;
+            this.tracks.reetern = resp.data
+            this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` })
+
+          })
+          .catch(error => {
+            console.log("error", error.toJSON());
+
+            this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: error.message })
+
+
+          })
+      }
+    }, //pruhpowsedget
+    _GETRETURNOG: function() {
+
+      this.loadings.reetern = true
 
 
       let route = []
@@ -1365,7 +1595,15 @@ gen a random finish point
       ,
     _BUFFERPROPOSAL: function(F) {
 
-        this.grpBufferedProposal.clearLayers()
+        // this.grpBufferedProposal.clearLayers()
+        this.grpDebug.clearLayers()
+        this.viasOut = []
+        this.viasBack = []
+
+        // check length of proposal - longer means a more narrow buffer
+        let pl = this.$TURFLENGTH(this.grpProposed.toGeoJSON())
+        console.log("pl", pl);
+
 
         this.tracks.bufferedProposal = this.$TURFSIMPLE(this.$TURFBUFFER(this.grpProposed.toGeoJSON(), 10, { units: 'meters' }), {
           mutate: true,
@@ -1373,16 +1611,41 @@ gen a random finish point
           highQuality: true
         });
 
-        let bpGhost = this.$TURFSIMPLE(this.$TURFBUFFER(this.grpProposed.toGeoJSON(), 50, { units: 'meters' }), {
+        let bpGhost = this.$TURFSIMPLE(this.$TURFBUFFER(this.grpProposed.toGeoJSON(), 150, { units: 'meters' }), {
           mutate: true,
           tolerance: .0001,
           highQuality: true
         });
         L.geoJSON(bpGhost, { style: this._STILE('debug') }).addTo(this.grpDebug)
 
-        let li = this.$TURF_lineintersect(this.grpCenterlines.toGeoJSON(), bpGhost)
-        console.log("li", li);
-        L.geoJSON(li, {
+        // taking that buffered proposed route, find where it intersects other streets
+        let l = this.$TURF_lineintersect(this.grpCenterlines.toGeoJSON(), bpGhost)
+
+        // get rid of any of those intersections that also fall within a track history('s buffer)
+        let ll = this.$_.compact(this.$_.reject(l.features, fea => {
+          return this.$_.some(this.tracks.buffered.features, bf => {
+            let isin = this.$TURF_booleanwithin(fea, bf.geometry);
+            return isin ? bf : null;
+          })
+        }));
+
+
+        // dummy fc for distance testing
+        // let clx = this.$TURFH.featureCollection(this.$_.map(ll, l => {
+        //   return this.$TURFH.point(l.geometry.coordinates)
+        // }));
+
+        this.$_.each(ll, l => {
+          /* this just turned out to be a great way for a point to find out it was 0 kilometers away FROM ITSELF
+          let nearestPoint = this.$_.first(this.$TURF_nearestpoint(l, clx).features).geometry.coordinates[0];
+          let ln = this.$TURFH.lineString([l.geometry.coordinates, nearestPoint], { name: 'lineforlength' });
+          L.geoJSON(ln, { style: this._STILE() }).addTo(this.grpDebug)
+          let dist = this.$TURFLENGTH(ln, { units: "kilometers" })
+          */
+          this.viasOut.push([l.geometry.coordinates[1], l.geometry.coordinates[0]])
+        })
+
+        L.geoJSON(ll, {
           style: this._STILE(),
           pointToLayer: function(feature, latlng) {
             return new L.CircleMarker([latlng.lat, latlng.lng], { radius: 12 })
@@ -1510,6 +1773,12 @@ gen a random finish point
   } //methods
   ,
   watch: {
+    "HERE.asGeo": {
+      handler: function(vnew, vold) {
+          L.geoJSON(this.HERE.asGeo, { style: this._STILE('debug') }).addTo(this.grpDebug)
+        } //handler
+    } //midpoints
+    ,
     avoid: {
       handler: function(vnew, vold) {
           this._GETPROPOSED()
@@ -1571,6 +1840,7 @@ gen a random finish point
       handler: function(vnew, vold) {
 
           this._MAPPROPOSED()
+          this._BUFFERPROPOSAL()
 
         } //handler
     } //loadings
@@ -1604,6 +1874,23 @@ gen a random finish point
     "tracks.history": {
       handler: function(vnew, vold) {
           this._MAPHISTORY()
+        } //handler
+    } //tracks.HISTORY
+    ,
+    trace: {
+      handler: function(vnew, vold) {
+          this._MAPTRACE()
+        } //handler
+    } //tracks.HISTORY
+    ,
+    "meta.within": {
+      handler: function(vnew, vold) {
+          if (vold && !vnew) {
+            this.konsole.push({ timeout: 6, klass: 'has-text-danger', msg: "YOU JUST LEFT BROOKLINE" })
+          }
+          if (vnew && !vold) {
+            this.konsole.push({ timeout: 6, klass: 'has-text-info', msg: "ur back in brooklinline :-)" })
+          }
         } //handler
     } //tracks.HISTORY
   } //watch
