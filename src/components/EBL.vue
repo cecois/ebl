@@ -477,7 +477,7 @@ export default {
     this.loadings.map = false;
 
     this._GETHISTORY();
-    this._TRACE()
+    this._FAKETRACE()
 
   },
   computed: {
