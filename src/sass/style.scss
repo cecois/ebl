@@ -42,6 +42,13 @@ color:grey;
 cursor:not-allowed;
 }
 
+.has-text-danger{
+	color:$barn-red;font-weight:800;
+}
+.has-text-info{
+	color:$celadon-blue;
+}
+
 .ebl-nav-on
 {
 	color:$persimmon;
@@ -53,10 +60,16 @@ cursor:not-allowed;
 	&:hover{color:lighten($dark-sienna,12%);}
 }
 
-.ebl-bg{
+.ebl-bg-within{
 	background-color:$army-green;
 	a{color:$ebl-white;
 		&:hover{color:$persimmon;}
+	}
+}
+.ebl-bg-without{
+	background-color:$barn-red;
+	a{color:$ebl-white;
+		&:hover{color:$ebl-white;}
 	}
 }
 
@@ -92,12 +105,18 @@ height:80px;
 }
 
 .navbar-item{
-	color:rgb(random(255), random(255), random(255));
+	color:$dark-sienna;
 }
 
 .footer{
 	z-index: 7;width:100%;position:absolute;bottom:0;left:0;
-	height:5vh;margin:0;
+	height:8vh;margin:0;
+	#konsole{
+		height:4vh;
+	}
+	#ebl-layers{
+		height:4vh;
+	}
 }
 
 #modal-credits{

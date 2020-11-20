@@ -3,29 +3,37 @@
     <vue-headful :title="page.title" description="fxsxxxrrrre" />
     <vue-topprogress color="rgba(236, 88, 0, 1)" ref="topProgress"></vue-topprogress>
     <div id="map"></div nb="/#map">
-    <nav class="navbar ebl-bg" role="navigation" aria-label="main navigation">
+    <nav :class="['navbar',meta.within?'ebl-bg-within':'ebl-bg-without']" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <a class="navbar-item" href="">
       {{page.title}}
     </a>
       </div>
-      <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-item is-pulled-right">
+        <span v-if="meta.been">(you've probably been here already)</span>
+        <span v-if="meta.distanceToBorder">&nbsp;({{`${Number(Math.round(meta.distanceToBorder+'e'+1)+'e-'+1)}`}}km from border)</span>
+      </div>
+      <!--
+      <div class="navbar-menu">
         <div class="navbar-start">
           <a @click.default="_LAUDIT
 (L.handle)" v-for="L in layers" class="navbar-item mr-3">
             <i :class="[`icon-${L.klass}`,L.on?'ebl-nav-on':'']"><span class="pl-2">{{L.abbrev}}</span></i>
-            <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
+             <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> 
           </a>
         </div>
         <div class="navbar-end">
-          <div class="navbar-item has-text-light">
+        -->
+      <!--           <div class="navbar-item has-text-light">
             <span v-if="meta.historyLength">{{Number(Math.round(meta.historyLength+'e'+1)+'e-'+1)}}km down of </span>&nbsp;
             <span v-if="meta.centerlinesLength">{{`${Number(Math.round(meta.centerlinesLength+'e'+1)+'e-'+1)}`}}km total</span>
             <span v-if="meta.proposedLength">&nbsp;({{`${Number(Math.round(meta.proposedLength+'e'+1)+'e-'+1)}`}}km proposed)</span>
-            <span v-if="meta.distanceToBorder">&nbsp;({{`${Number(Math.round(meta.distanceToBorder+'e'+1)+'e-'+1)}`}}km from border)</span>
-          </div>
+            
+          </div> 
+          
         </div>
       </div>
+        -->
     </nav>
     <!-- 
   _____    _____                 __   _____
@@ -94,23 +102,57 @@ modalsmodalsmodalsmodalsmodalsmodalsmodalsmodalsmodals
       </div>
       <button @click="modals.dropzone=false" class="modal-close is-large" aria-label="close"></button>
     </div>
-    <div :class="['modal',modals.credits?'is-active':'']" id="modal-credits">
+    <div :class="['modal',modals.credits?'is-active':'','has-text-centered']" id="modal-credits">
       <div class="modal-background"></div>
       <div class="modal-content">
-        <ul>
+        <div class="navbar-item has-text-light">
+          <span v-if="meta.historyLength">{{Number(Math.round(meta.historyLength+'e'+1)+'e-'+1)}}km down of </span>&nbsp;
+          <span v-if="meta.centerlinesLength">{{`${Number(Math.round(meta.centerlinesLength+'e'+1)+'e-'+1)}`}}km total</span>
+          <span v-if="meta.proposedLength">&nbsp;({{`${Number(Math.round(meta.proposedLength+'e'+1)+'e-'+1)}`}}km proposed)</span>
+        </div>
+        <ul class="is-size-7">
           <li v-for="credit in credits">{{credit}}</li>
         </ul>
       </div>
       <button @click="modals.credits=false" class="modal-close is-large" aria-label="close"></button>
     </div>
     <!-- 🦶🦶🦶🦶🦶🦶🦶🦶 FOOTER -->
-    <footer class="footer p-1">
-      <nav class="level pt-1 pl-2 pr-2">
+    <footer class="footer p-1 has-text-centered">
+      <div id="konsole" class="is-size-7">
+        <nav class="level">
+          <div v-for="M in konsole" id="konsole-copy" :class="['level-item','has-text-centered',M.klass,`faded${M.timeout}`]">
+            <div>
+              <p>{{M.msg}}</p>
+            </div>
+          </div>
+        </nav>
+      </div>
+      <nav id="ebl-layers" class="level is-mobile pl-2 pr-2">
         <!-- Left side -->
         <div class="level-left">
           <div class="level-item">
-            <p class="">
-              <a @click.default="modals.credits=true" class="mr-3">
+            <a @click.default="modals.credits=true" class="mr-3">
+              <i class="fas fa-info-circle"></i>
+            </a>
+            <!-- <div class="navbar-menu"> -->
+            <!-- <div class="navbar-start"> -->
+            <a @click.default="_LAUDIT
+(L.handle)" v-for="L in layers" class="navbar-item">
+              <i :class="[`icon-${L.klass}`,L.on?'ebl-nav-on':'']"><span class="pl-2">{{L.abbrev}}</span></i>
+              <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
+            </a>
+            <!-- </div> -->
+            <!-- <div class="navbar-end"> -->
+            <!-- <div class="navbar-item has-text-light">
+                  <span v-if="meta.historyLength">{{Number(Math.round(meta.historyLength+'e'+1)+'e-'+1)}}km down of </span>&nbsp;
+                  <span v-if="meta.centerlinesLength">{{`${Number(Math.round(meta.centerlinesLength+'e'+1)+'e-'+1)}`}}km total</span>
+                  <span v-if="meta.proposedLength">&nbsp;({{`${Number(Math.round(meta.proposedLength+'e'+1)+'e-'+1)}`}}km proposed)</span>
+                  <span v-if="meta.distanceToBorder">&nbsp;({{`${Number(Math.round(meta.distanceToBorder+'e'+1)+'e-'+1)}`}}km from border)</span>
+                </div> -->
+            <!-- </div> -->
+            <!-- </div> -->
+            <!-- <p class=""> -->
+            <!-- <a @click.default="modals.credits=true" class="mr-3">
                 <i class="fas fa-info-circle"></i>
               </a>
               <a @click.default="_RANDOFINISHLINE()" class="mr-3">
@@ -124,24 +166,17 @@ modalsmodalsmodalsmodalsmodalsmodalsmodalsmodalsmodals
                 <i class="fas fa-undo"></i>
               </a>
               <a target="_blank" :href="googleReviewOut"><i :class="['fab','fa-google',googleReviewOut?'':'is-disabled']"><span class="is-italic is-family-sans-serif">o</span></i></a>
-              <a target="_blank" :href="googleReviewBack"><i :class="['fab','fa-google',googleReviewBack?'':'is-disabled']"><span class="is-italic is-family-sans-serif">b</span></i></a>
-            </p>
+              <a target="_blank" :href="googleReviewBack"><i :class="['fab','fa-google',googleReviewBack?'':'is-disabled']"><span class="is-italic is-family-sans-serif">b</span></i></a> -->
+            <!-- </p> -->
           </div>
         </div>
-        <!-- Right side -->
+        <!-- Right side 
         <div class="level-right">
           <p class="level-item">
-            <div id="konsole">
-              <nav class="level">
-                <div v-for="M in konsole" id="konsole-copy" :class="['level-item','has-text-centered',M.klass,`faded${M.timeout}`]">
-                  <div>
-                    <p>{{M.msg}}</p>
-                  </div>
-                </div>
-              </nav>
-            </div>
+            
           </p>
         </div>
+        -->
       </nav>
     </footer>
     <!-- <footerx class="pl-1 footer is-size-7">
@@ -183,7 +218,8 @@ export default {
   mounted: function() {
     this.loadings.map = true;
 
-    this.konsole.push({ msg: new Date(), klass: 'is-info', timeout: 20, timeout: 20 })
+    // this.konsole.push({ msg: new Date(), klass: 'is-info', timeout: 20, timeout: 20 })
+    this.konsole = [{ msg: new Date(), klass: 'is-info', timeout: 20, timeout: 20 }]
 
 
     this.MAP = new L.Map("map", {
@@ -235,8 +271,10 @@ export default {
       .style.zIndex = (p + 6);
     this.MAP.createPane('pnDebug')
       .style.zIndex = (p + 1);
-    this.MAP.createPane('pnTrace')
+    this.MAP.createPane('pnTraceCenterlines')
       .style.zIndex = (p + 7);
+    this.MAP.createPane('pnTrace')
+      .style.zIndex = (p + 8);
 
     this.MAP.fitBounds(
       [
@@ -261,6 +299,9 @@ export default {
     }
     if (!this.grptrace) {
       this.grptrace = new L.featureGroup({ pane: 'pnTrace' }).addTo(this.MAP)
+    }
+    if (!this.grptracecenterlines) {
+      this.grptracecenterlines = new L.featureGroup({ pane: 'pnTraceCenterlines' }).addTo(this.MAP)
     }
     if (!this.grpAdmin) {
       this.grpAdmin = new L.featureGroup({ pane: 'pnAdmin' }).addTo(this.MAP)
@@ -315,11 +356,28 @@ export default {
             style: this._STILE('brookline'),
             snapIgnore: true
           })
-          // .addTo(this.grpAdmin);
+          .addTo(this.grpAdmin);
 
       }) //axios.then
       .catch(e => {
-        this.konsole.push({ msg: e, klass: "error", timeout: 20 })
+        // this.konsole.push({ msg: e, klass: "error", timeout: 20 })
+        this.konsole = [{ msg: e, klass: "error", timeout: 20 }]
+      }) //axios.catch
+
+    axios
+      .get(`http://${this.$CONFIG.apiH}:${this.$CONFIG.apiP}/ebl/brookline-outline`)
+      .then(response => {
+        this.townOutline = response.data
+          // L.geoJSON(response.data, {
+          //     style: this._STILE('brookline'),
+          //     snapIgnore: true
+          //   })
+          //   .addTo(this.grpAdmin);
+
+      }) //axios.then
+      .catch(e => {
+        // this.konsole.push({ msg: e, klass: "error", timeout: 20 })
+        this.konsole = [{ msg: e, klass: "error", timeout: 20 }]
       }) //axios.catch
 
 
@@ -328,7 +386,7 @@ export default {
       .then(response => {
 
         L.geoJSON(response.data, {
-            style: this._STILE('ghost'),
+            style: this._STILE('debug'),
             snapIgnore: true
           })
           .addTo(this.grpAdminGhost);
@@ -347,18 +405,22 @@ export default {
         // .addTo(this.grpAdminGhost);
 
       }) //axios.then
-      .then(r => {
-        // this._RANDOFINISHLINE()
-        // this.startfinish = { s: { longitude: -71.127856, latitude: 42.348360 }, f: this._RANDOFINISHLINE() }
-        this.startfinish = { s: this._STARTGET(true), f: this._RANDOFINISHLINE() }
+      // .then(r => {
+      // this._RANDOFINISHLINE()
+      // this.startfinish = { s: { longitude: -71.127856, latitude: 42.348360 }, f: this._RANDOFINISHLINE() }
+      // this.startfinish = { s: this._STARTGET(true), f: this._RANDOFINISHLINE() }
 
-      })
-      .catch(e => {
-        this.konsole.push({ msg: e, klass: "error", timeout: 20 })
+    // })
+    .catch(e => {
+        // this.konsole.push({ msg: e, klass: "error", timeout: 20 })
+        this.konsole = [{ msg: e, klass: "error", timeout: 20 }]
       }) //axios.catch
 
     axios.get(`http://${this.$CONFIG.apiH}:${this.$CONFIG.apiP}/ebl/centerlines`).then(response => { L.geoJSON(response.data.payload, { style: this._STILE('centerlines') }).addTo(this.grpCenterlines); }) //axios.then
-      .catch(e => { this.konsole.push({ msg: e, klass: "error", timeout: 20 }) }) //axios.catch 
+      .catch(e => {
+        // this.konsole.push({ msg: e, klass: "error", timeout: 20 }) 
+        this.konsole = [{ msg: e, klass: "error", timeout: 20 }]
+      }) //axios.catch 
       .then(r => { this._META('centerlines') })
 
 
@@ -415,6 +477,7 @@ export default {
     this.loadings.map = false;
 
     this._GETHISTORY();
+    this._TRACE()
 
   },
   computed: {
@@ -439,7 +502,26 @@ export default {
       MAP: null,
       border: null,
       HERE: null,
-      traceFake: [{ order: 0, lng: -71.13502622151538901, lat: 42.33960105822190911 }, { order: 1, lng: -71.1358425097494802, lat: 42.3393732568542589 }, { order: 2, lng: -71.13671574832547151, lat: 42.3391264720392968 }, { order: 3, lng: -71.13760797034878181, lat: 42.33893663756625614 }, { order: 4, lng: -71.13851917581938267, lat: 42.33868985275130115 }, { order: 5, lng: -71.13992395091990772, lat: 42.33834815069982227 }, { order: 6, lng: -71.14087312328511814, lat: 42.33813933277947683 }, { order: 7, lng: -71.14180331220303799, lat: 42.33793051485912429 }, { order: 8, lng: -71.14201213012339053, lat: 42.33791153141181951 }, { order: 9, lng: -71.14229688183294797, lat: 42.33859493551477726 }, { order: 10, lng: -71.1425246832006053, lat: 42.33958207477460434 }, { order: 11, lng: -71.14233484872755753, lat: 42.34100583332242707 }, { order: 12, lng: -71.14484066377173122, lat: 42.34060718092904096 }, { order: 13, lng: -71.14459387895676912, lat: 42.33948715753808045 }, { order: 14, lng: -71.14438506103643078, lat: 42.33842408448904138 }, { order: 15, lng: -71.14411929277416391, lat: 42.3374369452292143 }, { order: 16, lng: -71.14677697539677581, lat: 42.33690540870469476 }, { order: 17, lng: -71.14960550904511649, lat: 42.33629793839095612 }],
+      traceFake: [
+        { lng: -71.12760288455770308, lat: 42.34877616006091472, order: 0 },
+        { lng: -71.12790036129813132, lat: 42.3481578217744854, order: 1 },
+        { lng: -71.12816065344601668, lat: 42.34767688779103878, order: 2 },
+        { lng: -71.12888575300081584, lat: 42.34752573635061168, order: 3 },
+        { lng: -71.12946211418541509, lat: 42.34846012125221648, order: 4 },
+        { lng: -71.13005706766628577, lat: 42.3492708263107076, order: 5 },
+        { lng: -71.13085653640621331, lat: 42.35016396384663295, order: 6 },
+        { lng: -71.12987114470351457, lat: 42.35038381113987072, order: 7 },
+        { lng: -71.12756569996516021, lat: 42.35031510894333451, order: 8 },
+        { lng: -71.1253904013007201, lat: 42.35122197189118509, order: 9 },
+        { lng: -71.12459093256080678, lat: 42.35098838723139636, order: 10 },
+        { lng: -71.12587380100391954, lat: 42.35005403991166872, order: 11 },
+        { lng: -71.12713807715077508, lat: 42.34955937982539353, order: 12 },
+        { lng: -71.12795613818697404, lat: 42.34877616006091472, order: 13 }
+      ],
+      traceFakeLIM: [
+        { lng: -71.12760288455770308, lat: 42.34877616006091472, order: 0 }
+
+      ],
       trace: [],
       avoid: true,
       modalKick: false,
@@ -450,6 +532,7 @@ export default {
       viasBack: [],
       meta: {
         within: true,
+        been: false,
         distanceToBorder: null,
         centerlinesLength: null,
         historyLength: null,
@@ -655,6 +738,9 @@ gen a random finish point
         default:
 
 
+          // var splitter = turf.lineString([[130, -15], [130, -35]]);
+
+          // var split = turf.lineSplit(this.grpHistory.toGeoJSON(), splitter);
 
           /* #returnto - history length needs to first split segments that were outside of brookline
           this.$_.each(this.grpHistory.toGeoJSON().features, f => {
@@ -713,7 +799,10 @@ gen a random finish point
           return { color: `#4aa`, fill: false, width: 1, opacity: 0 }
           break;
         case 'trace':
-          return { dashArray: "2 5 10", color: `#87D100`, fill: false, width: 8, opacity: .7 }
+          return { dashArray: "2 5 10", color: `#87D100`, fill: false, weight: 12, opacity: .8 }
+          break;
+        case 'untraversed':
+          return { color: "#0D7CD6", fillColor: "#0D7CD6", fill: true, weight: 2, opacity: .88 }
           break;
         case 'incomingReturn':
           return { color: `rgba(120, 227, 253, 1)`, fill: false, dashArray: "2 5 10", opacity: .9, width: 5, weight: 8 }
@@ -737,9 +826,9 @@ gen a random finish point
           //history can take a second param
           trackTime = o ? this.$MOMENT(o).unix() : this.$MOMENT().unix()
 
-          norm = trackTime ? (trackTime - projectStart) / (today - projectStart) + .1 : 1
+          norm = trackTime ? (trackTime - projectStart) / (today - projectStart) + .3 : 1
 
-          return { color: "rgb(51, 15, 10)", fill: false, opacity: norm }
+          return { color: "rgb(51, 15, 10)", fill: false, opacity: 0 }
           break;
         case 'incomingDefault':
           return { color: `rgb(${Math.floor((Math.random() * 254) + 1)},${Math.floor((Math.random() * 254) + 1)},${Math.floor((Math.random() * 254) + 1)})`, fill: false, opacity: .6 }
@@ -822,55 +911,106 @@ gen a random finish point
 
 
       var iz = 0;
-
       var timerID = setInterval(() => {
-        if (iz <= this.traceFake.length - 1) {
           let tf = this.traceFake[iz];
-          console.log("tf.order", tf.order);
           iz++;
           this.trace.push(tf ? tf : null)
-        } else {
-          timerID.clearInterval(timerID);
-        }
-      }, 2000);
+
+        },
+        5000);
+
+    },
+    _TRACE: function() {
+
+
+      navigator.geolocation.watchPosition((watchedPosition => {
+
+        this.trace.push({ lat: watchedPosition.coords.latitude, lng: watchedPosition.coords.longitude })
+
+      }))
 
     },
     _MAPTRACE: function() {
-      // console.log("_MAPTRACE");
 
       if (this.trace.length > 0) {
+        //  that Is, If wE havE A tRaCe ARRAy AT All We...
+
+        //  aXE ANY prEVIOUSLY-rEnDeREd trACe lInEs ANd StreET cANdIdATEs
+        this.grptracecenterlines.clearLayers();
         this.grptrace.clearLayers();
 
-        let STYLS = this._STILE();
+        //  mrt WiLL bE ThE MOSt reCenTly-added trACE cooRdS
         let mrt = this.$_.last(this.$_.compact(this.trace));
-        let bl = this.$TURF_polygontoline(this.grpAdminGhost.toGeoJSON().features[0])
-
-        // L.geoJSON(bl, { style: this._STILE('debug') }).addTo(this.grpDebug)
-
+        //  ThIs is a PrOpeR geOM mAde FRom Mrt
         let np = this.$TURFH.point([mrt.lng, mrt.lat])
-
-        // L.geoJSON(np, { style: this._STILE('debug') }).addTo(this.grpDebug)
-
-        this.meta.within = this.$TURF_booleanwithin(np, this.grpAdminGhost.toGeoJSON().features[0]);
-        this.meta.distanceToBorder = this.$TURF_pointtolinedistance(np, bl.features[0], { units: 'kilometers' })
+          //  thiS Is A 100M buffEr AROUNd SAiD gEOm
+        let bufferedTracePoint = this.$TURFBUFFER(np, 100, { units: "meters" });
 
 
-        L.geoJSON(np, {
-          style: this._STILE(),
-          pointToLayer: function(feature, latlng) {
-            return new L.CircleMarker([latlng.lat, latlng.lng], { radius: 8 })
-          }
-        }).addTo(this.grptrace)
-
+        //  ViZ OuR loc trAce
         if (this.trace.length > 1) {
-          L.geoJSON(this.$TURFH.lineString(this.$_.map(this.$_.compact(this.trace), tr => {
+
+          // gEn A LinEStRiNg from THE curRENt TrACE
+          let LS = this.$TURFH.lineString(this.$_.map(this.$_.compact(this.trace), tr => {
             return [tr.lng, tr.lat]
-          })), {
+          }))
+
+          // buFFEr THAt
+          let LSB = this.$TURFBUFFER(LS, 10, { units: 'meters' })
+
+          L.geoJSON(LS, {
             style: this._STILE('trace')
           }).addTo(this.grptrace)
-        }
+
+          //  ANd MAke THe mAp FOlLoW US
+          this.MAP.setView(L.latLng(np.geometry.coordinates[1], np.geometry.coordinates[0]), 17, { animate: true })
+
+          // we AlSO WAnT A bUfFER aRoUNd ThE activE TraCE SO WE don't RecomMeND (BelOW) lengths we VeRy ReceNTLY cOvErEd
+          L.geoJSON(LSB, {
+            style: this._STILE('debug')
+          }).addTo(this.grpDebug)
+
+          //  ThIs Is the tOWN BordEr
+          let bl = this.$TURF_polygontoline(this.grpAdminGhost.toGeoJSON().features[0])
+
+          //  IF the mosT RECeNT tRacE poinT doEsNt FAlL WITHIN ANY OF THE BuffEreD hIstORy tRACKS...
+          if (!this.$TURF_booleanwithin(np, this.$TURFCOMBINE(this.grpBuffered.toGeoJSON()).features[0])) {
+
+            //  ...We look FOr CentERLiNe FeATUreS WHoSE CeNtERPOInts aRe WitHiN our BUfFEed TracePOINT
+            this.$_.each(this.grpCenterlines.toGeoJSON().features, fea => {
+                let centerPoint = this.$TURF_center(fea)
+                  // is tHe FEAtUre'S CentERpoINT WIThin (The BuFfERED vERSion of) our cURReNt tRaCePoINT?
+                let w = this.$TURF_booleanwithin(centerPoint, bufferedTracePoint)
+                  // hOW aBOut thIs - is The FeATUre'S CeNtERPoInT Also WiThin oUR bUFfErEd trACE lInE?
+                let x = this.$TURF_booleanwithin(centerPoint, LSB)
+                if (w && !x) {
+                  //  if SO WE ligHt eM up bY AdDiNg thEm tO GrPtrACEceNTerlINeS
+                  L.geoJSON(this.$TURFBUFFER(this.$TURFH.lineString(fea.geometry.coordinates[0]), 50, { units: "feet" }), { style: this._STILE('untraversed') }).addTo(this.grptracecenterlines)
+                }
+              }) //EETch.grpceNTeRLiNes
+          } //IF.NP.WiThIn.hisTOrY
+
+
+          //  thIs aDdS A renDerIng OF ThE buffERedTRaCePOiNT For dEBug fuN
+          //  l.gEOjSon(buFFErEdtracePoinT, { sTYle: This._STilE('DebuG') }).ADdto(THIs.GRpDEBUG)
+
+          //  NoW LEt'S seT A FLAg For wHeTHeR We'rE sTilL iN ToWn Or not
+          this.meta.within = this.$TURF_booleanwithin(np, this.grpAdminGhost.toGeoJSON().features[0]);
+
+          //  And A flag fOR WHETHer wE ThiNk WE'Ve bEEn hERE befORe or NoT
+          this.meta.been = this.$_.some(this.tracks.buffered.features, fea => {
+            return this.$TURF_booleanwithin(np, fea);
+          });
+
+          //  AnD alSO leT'S upDAte ourSelvES ABoUT hOW cLOse WE Are TO ToWN bORDer (comINg Or GOiNg)
+          this.meta.distanceToBorder = this.$TURF_pointtolinedistance(np, bl.features[0], { units: 'kilometers' })
+
+        } //if.trace.length>1
+
 
       }
+
+
 
       this._CONSEOUL()
 
@@ -1021,7 +1161,7 @@ gen a random finish point
       //   })
       //   .addTo(this.grpDebug)
 
-      this._LAUDIT('grpDebug', true)
+      this._LAUDIT('grpDebug', false)
       this.loadings.map = false
 
       /*+-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-++-+-+-+-+-+
@@ -1052,7 +1192,6 @@ gen a random finish point
 
     },
     _MAPHISTORY: function() {
-      console.log("_MAPHISTORY");
 
       this.grpHistory.clearLayers()
 
@@ -1077,7 +1216,7 @@ gen a random finish point
         this.loadings.map = false;
 
         this._BUFFERTRACKS()
-        this._LAUDIT('grpHistory', true)
+        this._LAUDIT('grpHistory', false)
       } //if history
       this._META()
     },
@@ -1148,7 +1287,8 @@ gen a random finish point
 
         axios.get(`http://${this.$CONFIG.apiH}:${this.$CONFIG.apiP}/ebl/tracks`)
           .then(resp => {
-            this.konsole.push({ timeout: 20, klass: resp.data.success ? '' : 'has-text-danger', msg: resp.data.msg })
+            // this.konsole.push({ timeout: 20, klass: resp.data.success ? '' : 'has-text-danger', msg: resp.data.msg })
+            this.konsole = [{ timeout: 20, klass: resp.data.success ? '' : 'has-text-danger', msg: resp.data.msg }]
             this.loadings.tracks = false;
             this.tracks.history = resp.data.payload
           })
@@ -1256,13 +1396,15 @@ gen a random finish point
 
             this.loadings.proposed = false;
             this.tracks.proposed = resp.data
-            this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` })
+              // this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` })
+            this.konsole = [{ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` }]
 
           })
           .catch(error => {
             console.log("error", error.toJSON());
 
-            this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: error.message })
+            // this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: error.message })
+            this.konsole = [{ timeout: 20, klass: 'has-text-danger', msg: error.message }]
 
 
           })
@@ -1363,13 +1505,15 @@ gen a random finish point
 
             this.loadings.reetern = false;
             this.tracks.reetern = resp.data
-            this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` })
+              // this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` })
+            this.konsole = [{ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` }]
 
           })
           .catch(error => {
             console.log("error", error.toJSON());
 
-            this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: error.message })
+            // this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: error.message })
+            this.konsole = [{ timeout: 20, klass: 'has-text-danger', msg: error.message }]
 
 
           })
@@ -1511,14 +1655,16 @@ gen a random finish point
 
             this.loadings.reetern = false;
             this.tracks.reetern = resp.data
-            this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` })
+              // this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` })
+            this.konsole = [{ timeout: 20, klass: 'has-text-danger', msg: `ORS engine ${resp.data.metadata.engine.version} returned a ${resp.data.features.length}-seg route` }]
 
 
           })
           .catch(error => {
             console.log("error", error.toJSON());
 
-            this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: error.message })
+            // this.konsole.push({ timeout: 20, klass: 'has-text-danger', msg: error.message })
+            this.konsole = [{ timeout: 20, klass: 'has-text-danger', msg: error.message }]
 
 
           })
@@ -1537,7 +1683,8 @@ gen a random finish point
 
       axios.post(`http://${this.$CONFIG.apiH}:${this.$CONFIG.apiP}/ebl/submit`, this.tracks.incoming)
         .then(resp => {
-          this.konsole.push({ timeout: resp.data.success ? 12 : 20, klass: resp.data.success ? '' : 'has-text-danger', msg: resp.data.msg })
+          // this.konsole.push({ timeout: resp.data.success ? 12 : 20, klass: resp.data.success ? '' : 'has-text-danger', msg: resp.data.msg })
+          this.konsole = [{ timeout: resp.data.success ? 12 : 20, klass: resp.data.success ? '' : 'has-text-danger', msg: resp.data.msg }]
           this.loadings.submit = false;
         })
         .then(x => {
@@ -1588,7 +1735,10 @@ gen a random finish point
                   }).features[0].geometry, lawton60r).geometry*/
 
         // this buffer works beautifully but doesn't cut Lawton out
-        this.tracks.buffered = this.$TURFSIMPLE(this.$TURFBUFFER(this.grpHistory.toGeoJSON(), 10, { units: 'meters' }), { mutate: true, tolerance: .0001, highQuality: true });
+        this.tracks.buffered =
+          // this.$TURFSIMPLE(
+          this.$TURFBUFFER(this.grpHistory.toGeoJSON(), 10, { units: 'meters' })
+          // , { mutate: true, tolerance: .0001, highQuality: true });
 
 
       } //traxbuhfrd
@@ -1886,10 +2036,12 @@ gen a random finish point
     "meta.within": {
       handler: function(vnew, vold) {
           if (vold && !vnew) {
-            this.konsole.push({ timeout: 6, klass: 'has-text-danger', msg: "YOU JUST LEFT BROOKLINE" })
+            // this.konsole.push({ timeout: 6, klass: 'has-text-danger', msg: "YOU JUST LEFT BROOKLINE" })
+            this.konsole = [{ timeout: 6, klass: 'has-text-danger', msg: "YOU JUST LEFT BROOKLINE" }]
           }
           if (vnew && !vold) {
-            this.konsole.push({ timeout: 6, klass: 'has-text-info', msg: "ur back in brooklinline :-)" })
+            // this.konsole.push({ timeout: 6, klass: 'has-text-info', msg: "ur back in brooklinline :-)" })
+            this.konsole = [{ timeout: 6, klass: 'has-text-info', msg: "ur back in brooklinline :-)" }]
           }
         } //handler
     } //tracks.HISTORY

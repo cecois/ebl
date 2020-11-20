@@ -1,1 +1,1 @@
-# cbb-gui
+# ebl-gui
