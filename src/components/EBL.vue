@@ -925,6 +925,8 @@ gen a random finish point
 
       navigator.geolocation.watchPosition((watchedPosition => {
 
+        alert(watchedPosition);
+
         this.trace.push({ lat: watchedPosition.coords.latitude, lng: watchedPosition.coords.longitude })
 
       }))
