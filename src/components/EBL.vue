@@ -828,7 +828,7 @@ gen a random finish point
 
           norm = trackTime ? (trackTime - projectStart) / (today - projectStart) + .3 : 1
 
-          return { color: "rgb(51, 15, 10)", fill: false, opacity: 0 }
+          return { color: "rgb(51, 15, 10)", fill: false, opacity: norm }
           break;
         case 'incomingDefault':
           return { color: `rgb(${Math.floor((Math.random() * 254) + 1)},${Math.floor((Math.random() * 254) + 1)},${Math.floor((Math.random() * 254) + 1)})`, fill: false, opacity: .6 }
