@@ -214,33 +214,66 @@ export default {
     var mess = "Every Brookline Line";
     this.msg = mess.toUpperCase();
 
+    // here we do some intercepting of our colloquial router null, the '$'
+    this.actives = {
+      rideKey: (!this.$route.params.ridekey || this.$route.params.ridekey == '$') ? null : this.$route.params.ridekey,
+      baseMap: (!this.$route.params.basemap || this.$route.params.basemap == '$') ? null : this.$route.params.basemap,
+      queryString: (!this.$route.params.query || this.$route.params.query == '$') ? null : this.$route.params.query,
+      bboxString: (!this.$route.params.bbox || this.$route.params.bbox == '$') ? null : this.$route.params.bbox
+    }
+
   },
   mounted: function() {
     this.loadings.map = true;
 
-    // this.konsole.push({ msg: new Date(), klass: 'is-info', timeout: 20, timeout: 20 })
     this.konsole = [{ msg: new Date(), klass: 'is-info', timeout: 20, timeout: 20 }]
 
-
     this.MAP = new L.Map("map", {
-      editable: true,
-      zoomControl: false,
-      center: [42, -72],
-      attributionControl: false,
-      zoom: 11
-    }).on('click', e => {
-
-      L.popup()
-        .setLatLng(e.latlng)
-        .setContent(
-          `<div class="heading">${e.latlng.lng},${e.latlng.lat}</div>
-                    <div class="heading">${e.latlng.lat},${e.latlng.lng}</div>`
-        )
-        .openOn(this.MAP);
+        editable: true,
+        zoomControl: false,
+        center: [42, -72],
+        attributionControl: false,
+        zoom: 11
+      })
+      .on('moveend', e => {
+        this.actives.bboxString = this.MAP.getBounds().toBBoxString()
+      })
 
 
-    })
+    /*
+    this.actives = {
+          rideKey: this.$route.params.ridekey ? this.$route.params.ridekey : null,
+          baseMap: this.$route.params.basemap ? this.$route.params.basemap : null,
+          queryString: this.$route.params.query ? this.$route.params.query : null,
+          bboxString: this.$route.params.bbox ? this.$route.params.bbox : null
+        }
+    */
+    /*    .on('click', e => {
+          L.popup()
+            .setLatLng(e.latlng)
+            .setContent(
+              `<div class="heading">${e.latlng.lng},${e.latlng.lat}</div>
+                        <div class="heading">${e.latlng.lat},${e.latlng.lng}</div>`
+            )
+            .openOn(this.MAP);
+        })*/
 
+    if (this.actives.bboxString) {
+
+      let bba = this.actives.bboxString.split(',')
+
+      console.log("moving map to bba", bba);
+      let bb = {
+        west: bba[0],
+        south: bba[1],
+        east: bba[2],
+        north: bba[3]
+      }
+      this.MAP.fitBounds([
+        [bb.south, bb.west],
+        [bb.north, bb.east]
+      ])
+    }
 
     this.VAP = new L.Map("vap", {
       editable: true,
@@ -276,12 +309,12 @@ export default {
     this.MAP.createPane('pnTrace')
       .style.zIndex = (p + 8);
 
-    this.MAP.fitBounds(
+    /*this.MAP.fitBounds(
       [
         [42.31566161628652, -71.19664326310159],
         [42.36102434112847, -71.06506481766702]
       ]
-    )
+    )*/
 
 
     let tl = "https://c.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
@@ -500,6 +533,7 @@ export default {
   data() {
     return {
       MAP: null,
+      actives: null,
       border: null,
       HERE: null,
       traceFake: [
@@ -963,7 +997,7 @@ gen a random finish point
           }).addTo(this.grptrace)
 
           //  ANd MAke THe mAp FOlLoW US
-          this.MAP.setView(L.latLng(np.geometry.coordinates[1], np.geometry.coordinates[0]), 17, { animate: true })
+          // this.MAP.setView(L.latLng(np.geometry.coordinates[1], np.geometry.coordinates[0]), 17, { animate: true })
 
           // we AlSO WAnT A bUfFER aRoUNd ThE activE TraCE SO WE don't RecomMeND (BelOW) lengths we VeRy ReceNTLY cOvErEd
           L.geoJSON(LSB, {
@@ -1212,7 +1246,10 @@ gen a random finish point
 
           }) //eetch.history
 
-        this.MAP.fitBounds(this.grpHistory.getBounds())
+        if (!this.actives.bboxString) {
+          this.MAP.fitBounds(this.grpHistory.getBounds())
+        }
+
         this.loadings.map = false;
 
         this._BUFFERTRACKS()
@@ -1274,7 +1311,9 @@ gen a random finish point
         })
         .addTo(this.grpProposed) : null;
 
-      this.MAP.fitBounds(this.grpProposed.getBounds())
+      if (!this.actives.bboxString) {
+        this.MAP.fitBounds(this.grpProposed.getBounds())
+      }
       this.loadings.map = false;
       // this._BUFFERPROPOSAL()
       this._LAUDIT('grpProposed', true)
@@ -1833,6 +1872,21 @@ gen a random finish point
 
       } //traxbuhfrd
       ,
+    _SETROUTE: function() {
+        console.log("_SETROUTE");
+
+
+        let P = {
+          ridekey: this.actives.rideKey ? this.actives.rideKey : '$',
+          basemap: this.actives.baseMap ? this.actives.baseMap : '$',
+          query: this.actives.queryString ? this.actives.queryString : '$',
+          bbox: this.actives.bboxString ? this.actives.bboxString : '$'
+        }
+        this.$router.push({
+          params: P
+        }); //rejplace
+      } //setRoute
+      ,
     _LAUDIT: function(H, T) {
 
 
@@ -1923,6 +1977,13 @@ gen a random finish point
   } //methods
   ,
   watch: {
+    "actives": {
+      deep: true,
+      handler: function(vnew, vold) {
+          this._SETROUTE()
+        } //handler
+    } //midpoints
+    ,
     "HERE.asGeo": {
       handler: function(vnew, vold) {
           L.geoJSON(this.HERE.asGeo, { style: this._STILE('debug') }).addTo(this.grpDebug)

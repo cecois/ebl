@@ -4,7 +4,7 @@ import EBL from "@/components/EBL";
 Vue.use(Router);
 export default new Router({
 	routes: [{
-		path: "/",
+		path: "/:ridekey?/:query?/:basemap?/:bbox?",
 		name: "EBL",
 		component: EBL
 	}]
