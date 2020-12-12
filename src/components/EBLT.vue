@@ -187,9 +187,7 @@ export default {
      / /_/ / /  / /_/ / /_/ / ,< / / / / / /  __/
     /_.___/_/   \____/\____/_/|_/_/_/_/ /_/\___/
     */
-    axios
-    // .get(`http://${this.$CONFIG.apiH}:${this.$CONFIG.apiP}/ebl/brookline`)
-    // .get(`https://raw.githubusercontent.com/cecois/milleria-api-v3/master/static/brookline-outline-buffer.geojson`)
+    /*axios
       .get(`static/brookline-outline-buffer.geojson`)
       .then(response => {
 
@@ -205,6 +203,7 @@ export default {
         // this.konsole.push({ msg: e, klass: "error", timeout: 20 })
         this.konsole = [{ msg: e, klass: "error", timeout: 20, sender: "axios.catch.outline-buffer" }]
       }) //axios.catch
+      */
 
 
     axios
@@ -713,13 +712,13 @@ export default {
             let lengthInvalid = 0
 
             // gotta test the centerpoints
-            this.$_.each(split.features, (fea, feai) => {
+            /*this.$_.each(split.features, (fea, feai) => {
 
               let winout = this.$TURF_booleanwithin(this.$TURF_center(fea), this.grpadminghost.toGeoJSON().features[0])
 
               winout ? lengthValid = lengthValid + this.$TURFLENGTH(fea, { units: "kilometers" }) : lengthInvalid = lengthInvalid + this.$TURFLENGTH(fea, { units: "kilometers" })
                 // L.geoJSON(fea, { style: stil }).addTo(this.grpdebug);
-            })
+            })*/
 
             this.meta.historyLengthValid = lengthValid
             this.meta.historyLengthInvalid = lengthInvalid

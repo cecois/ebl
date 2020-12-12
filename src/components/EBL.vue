@@ -17,6 +17,12 @@
         </div>
         <div class="level-item has-text-centered">
           <div>
+            <p class="heading ebl-dash-heading">
+              <a @click.default="page.splayed=!page.splayed" class="navbar-item is-size-1">
+                <i :class="['fas','fa-star-half-alt',page.splayed?'ebl-nav-off':'ebl-nav-on']"></i>
+                <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
+              </a>
+            </p>
             <!-- <p class="heading ebl-dash-heading">wstd.km</p>
             <p :class="['title','ebl-dash-item',_BANNERCO('donePrior')]">{{meta.historyLengthInvalid.toFixed(1)}}</p> -->
           </div>
