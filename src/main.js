@@ -8,9 +8,25 @@ import moment from 'moment';
 import underscore from "vue-underscore";
 import vueHeadful from 'vue-headful';
 import vueTopprogress from 'vue-top-progress'
-// import {
-// 	SportsLib
-// } from '@sports-alliance/sports-lib';
+
+
+/*import ECharts from 'vue-echarts' // refers to components/ECharts.vue in webpack
+
+// import ECharts modules manually to reduce bundle size
+import 'echarts/lib/chart/bar'
+import 'echarts/lib/component/tooltip'*/
+
+// If you want to use ECharts extensions, just import the extension package, and it will work
+// Taking ECharts-GL as an example:
+// You only need to install the package with `npm install --save echarts-gl` and import it as follows
+// import 'echarts-gl'
+// register component to use
+// Vue.component('v-chart', ECharts)
+
+import Chartkick from 'vue-chartkick'
+import Chart from 'chart.js'
+
+Vue.use(Chartkick.use(Chart))
 
 const FLEXPOLY = require('@mapbox/polyline');
 const PENC = require('polyline-encoded')
@@ -37,6 +53,7 @@ const TURFUNION = require('@turf/union').default
 const TURFFLIP = require('@turf/union').default
 const TURFBBOX = require('@turf/bbox').default
 const TURFCENTER = require('@turf/center').default
+const TURFCENTROID = require('@turf/centroid').default
 const TURFLINEINTERSECT = require('@turf/line-intersect').default
 	// const TURFLINEOVERLAP = require('@turf/line-overlap').default
 const TURFBBOXCLIP = require('@turf/bbox-clip').default
@@ -58,12 +75,14 @@ const TOGEOJSON = require('@tmcw/togeojson')
 
 // import '@/assets/fontello/css/fontello.css'
 
+
 Vue.component('vue-headful', vueHeadful)
 Vue.use(underscore);
 Vue.use(vueTopprogress, {
 	color: "rgba(236, 88, 0, 1)"
 })
 Vue.config.productionTip = false;
+
 
 
 Object.defineProperty(Vue.prototype, '$PENC', {
@@ -84,6 +103,10 @@ Object.defineProperty(Vue.prototype, '$MOMENT', {
 
 Object.defineProperty(Vue.prototype, '$TURF_flip', {
 	value: TURFFLIP
+})
+
+Object.defineProperty(Vue.prototype, '$TURF_centroid', {
+	value: TURFCENTROID
 })
 
 Object.defineProperty(Vue.prototype, '$TURF_center', {

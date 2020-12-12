@@ -12,6 +12,17 @@ font-weight:800;
 // 	src: local('Sulphur Point'),local('Sulphur Point'),url('assets/fonts/SulphurPoint-Regular.ttf') format('truetype');
 // }
 
+/*
+    ____  __  ____    __  ______       ____ _    ____________      ________
+   / __ )/ / / / /   /  |/  /   |     / __ \ |  / / ____/ __ \____/  _/ __ \___
+  / __  / / / / /   / /|_/ / /| |    / / / / | / / __/ / /_/ / ___/ // / / / _ \
+ / /_/ / /_/ / /___/ /  / / ___ |   / /_/ /| |/ / /___/ _, _/ / _/ // /_/ /  __/
+/_____/\____/_____/_/  /_/_/  |_|   \____/ |___/_____/_/ |_/_/ /___/_____/\___/
+*/
+
+$turquoise: rgba(111, 26, 7, 1);
+$blue: rgba(111, 26, 7, 1);
+$panel-shadow: 0 2.5em 4em -0.125em rgba(111, 26, 7, 1), 0 0px 0 1px rgba(111, 26, 7, 1);
 
 /* SCSS RGB */
 $army-green: rgba(75, 83, 32, 1);
@@ -19,6 +30,7 @@ $persimmon: rgba(236, 88, 0, 1);
 $dark-sienna: rgba(51, 15, 10, 1);
 $flax: rgba(239, 221, 141, 1);
 $lemon-yellow-crayola: rgba(244, 253, 175, 1);
+$naples-yellow:#F8E16C;
 $ebl-white:rgb(233,233,233);
 $celadon-blue: rgba(36, 123, 160, 1);
 $sky-blue-crayola: rgba(120, 227, 253, 1);
@@ -26,12 +38,118 @@ $barn-red: rgba(111, 26, 7, 1);
 
 $proposed:$celadon-blue;
 
+$appPrimary:$army-green;
+$appSecondary:$persimmon;
+$appDark:rgba(40, 41, 34,.88);
+$appWhite:$ebl-white;
 
+::selection {
+  background: $persimmon; /* WebKit/Blink Browsers */
+  color:$appWhite;
+}
+::-moz-selection {
+  background: $persimmon; /* Gecko Browsers */
+  color:$appWhite;
+}
+
+.ebl-is-disabled{
+	cursor: not-allowed;
+}
+.ebl-bt{
+	&:hover{cursor:pointer;color:$persimmon;}
+}
+
+.ebl-filter-warning{
+	color:$persimmon;
+}
+
+#ebl-brand{
+	background-color:$army-green;
+	font-weight:800;
+	font-size:2em;
+	color:$appWhite;width:100%;
+}
 
 a{
 	color:$persimmon;
 	&:hover{color:darken($persimmon,12%);}
 }
+
+#ebl-dashboard-wrapper{
+	background-color:rgba($appWhite,.9);
+	width:100%;
+}
+#ebl-dashboard-wrapper.is-splayed{left:85%;}
+
+.ebl-dash-heading{
+	font-size:.8em;
+	color:$appWhite;
+}
+
+.ebl-dash-item{
+	color:$appSecondary;
+	font-weight:800;
+	border-radius:.8em;
+	-moz-border-radius:.8em;
+	-webkit-border-radius:.8em;
+	display:inline-block;
+	text-align:center;
+}
+
+.has-text-ebl-banner-info{
+	color:$persimmon;
+}
+.has-text-ebl-important{
+	color:$appWhite;
+}
+.has-text-ebl-notso-important{
+	color:rgba( $persimmon, .5 )
+}
+#trackHistoryPanel{
+		color:rgba($army-green,.8);
+		a{text-decoration: none;}
+		a.included{
+			color:$persimmon;
+		}
+		// position:fixed;top:10%;
+	}
+
+#modal-track-menu{
+	width:33%;
+	.modal-content{
+		width:96%;
+	}
+	.modal-background{
+	background-color:$appWhite;
+	// color:$dark-sienna;
+	}
+	}
+
+#modal-track-iso{
+	height:25%;
+	.title{color:$appWhite;}
+	.modal-content{
+		width:96%;
+	}
+	.modal-background{
+	background-color:$sky-blue-crayola;
+	// color:$dark-sienna;
+	}
+}
+
+.bt_baseMap{
+	cursor:pointer;
+
+	border:1px solid $appDark;
+	
+	
+	&:hover{
+		border:2px solid $appWhite;
+	}
+// .bt_baseMapThumb{height:22px;width:22px;border:1px solid $appPrimary;.active{border:2px solid $appSecondary;}}
+}
+
+.bt_baseMap.active{border:3px solid $appSecondary;}
 
 .ebl-kick{
 left:90%;
@@ -66,6 +184,12 @@ cursor:not-allowed;
 		&:hover{color:$persimmon;}
 	}
 }
+.ebl-bg-nearing{
+	background-color:$naples-yellow;
+	a{color:$ebl-white;
+		&:hover{color:$persimmon;}
+	}
+}
 .ebl-bg-without{
 	background-color:$barn-red;
 	a{color:$ebl-white;
@@ -78,11 +202,19 @@ cursor:not-allowed;
 }
 #vap{
 	position:relative;top:0;left:0;width:100%;height:100vh;width:100%;
-// height:600pc;width:800px;
-// width:640px;height:480px;
+}
+#hap{
+	position:relative;top:0;left:0;width:100%;height:100vh;width:100%;
 }
 #vap-copy{
 height:80px;
+}
+
+#ddebug{
+	min-height:10vh;
+	z-index:2;
+	background-color:$persimmon;
+	color:$ebl-white;
 }
 
 #ebl-modal-dropzone{
@@ -108,12 +240,21 @@ height:80px;
 	color:$dark-sienna;
 }
 
+#konsole-wrapper{
+	z-index:5;
+	min-height:4vh;
+#konsole{
+	min-height:4vh;
+	background-color:$appDark;
+	font-weight:800;
+	color:$appWhite;
+}
+}
+
 .footer{
-	z-index: 7;width:100%;position:absolute;bottom:0;left:0;
-	height:8vh;margin:0;
-	#konsole{
-		height:4vh;
-	}
+	z-index: 7;width:100%;bottom:0;left:0;
+		position:fixed;
+	height:4vh;margin:0;
 	#ebl-layers{
 		height:4vh;
 	}
