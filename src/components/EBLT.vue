@@ -4,10 +4,6 @@
     <vue-topprogress color="rgba(236, 88, 0, 1)" ref="topProgress"></vue-topprogress>
     <div id="map"></div nb="/#map">
     <nav :class="['navbar',_BANNERBG]" role="navigation" aria-label="main navigation">
-      <!-- <div class="navbar-item ">
-        <span v-if="meta.been">(you've probably been here already)</span>
-        <span v-if="meta.distanceToBorder">&nbsp;({{`${Number(Math.round(meta.distanceToBorder+'e'+1)+'e-'+1)}`}}km from border)</span>
-      </div> -->
       <nav class="level is-mobile">
         <div class="level-item has-text-centered">
           <div>
@@ -25,12 +21,12 @@
             <p :class="['title','ebl-dash-item',_BANNERCO('totalCenterlines')]">{{Math.round(meta.centerlinesLength)}}</p>
           </div>
         </div>
-        <div class="level-item has-text-centered">
+        <!-- <div class="level-item has-text-centered">
           <div>
             <p class="heading ebl-dash-heading">%Dn.</p>
             <p :class="['title','ebl-dash-item',_BANNERCO('donePrior')]">{{((meta.historyLengthValid/meta.centerlinesLength)*100).toFixed(1)}}</p>
           </div>
-        </div>
+        </div> -->
         <!-- <div class="level-item has-text-centered">
           <div>
             <p class="heading ebl-dash-heading">Dn.km</p>
@@ -78,6 +74,10 @@
               <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
             </a>
           </div>
+          <div class="level-item">
+            <span v-if="meta.been">(you've probably been here already)</span>
+            <span v-if="meta.distanceToBorder">&nbsp;({{`${Number(Math.round(meta.distanceToBorder+'e'+1)+'e-'+1)}`}}m from border)</span>
+          </div>
         </div>
         <div class="level-right pb-2">
           <!-- <span class="is-family-code is-size-7 has-text-grey-lighter pr-2" v-html="`{basemap:${$_.findWhere(this.baseMaps, { handle: this.actives.baseMap }).name}}`"></span> -->
@@ -91,6 +91,7 @@
 </template>
 
 <script>
+require('leaflet-viewpoint')
 export default {
   name: "evERyBlINE",
   created: function() {
@@ -103,7 +104,7 @@ export default {
   },
   mounted: function() {
 
-    navigator.geolocation.getCurrentPosition((currentPosition => {
+    /*navigator.geolocation.getCurrentPosition((currentPosition => {
 
       this.konsole = [{ timeout: 20, klass: 'has-text-info', msg: currentPosition.coords.latitude, sender: "if.geolocation" }]
         // this.trace.push({ lat: currentPosition.coords.latitude, lng: currentPosition.coords.longitude })
@@ -113,8 +114,9 @@ export default {
       this.konsole = [{ timeout: 20, klass: 'has-text-error', msg: `nav.geo failed: ${err.message} (${err.code})`, sender: "if.geolocation.error" }]
 
     })
+    */
 
-    this.loadings.app = true;
+    // this.loadings.app = true;
 
     this.konsole = [{ msg: new Date(), klass: 'is-info', timeout: 20, timeout: 20 }]
 
@@ -137,9 +139,9 @@ export default {
     this.MAP.createPane('pnTracks')
       .style.zIndex = (p + 4);
     this.MAP.createPane('pnDebug')
-      .style.zIndex = (p + 1);
+      .style.zIndex = (p + 11);
     this.MAP.createPane('pnCenterlines')
-      .style.zIndex = (p + 7);
+      .style.zIndex = (p + 3);
     this.MAP.createPane('pnTrace')
       .style.zIndex = (p + 9);
 
@@ -150,14 +152,14 @@ export default {
       this.grpbasemaps = new L.featureGroup({ pane: 'pnBasemaps' }).addTo(this.MAP)
     }
 
-    if (!this.grpadminghost) {
-      this.grpadminghost = new L.featureGroup({ pane: 'pnAdmin' }).addTo(this.MAP)
+    if (!this.grpbrooklinepoly) {
+      this.grpbrooklinepoly = new L.featureGroup({ pane: 'pnAdmin' }).addTo(this.MAP)
     }
     if (!this.grptrace) {
       this.grptrace = new L.featureGroup({ pane: 'pnTrace' }).addTo(this.MAP)
     }
-    if (!this.grphistorytracks) {
-      this.grphistorytracks = new L.featureGroup({ pane: 'pnTracks' }).addTo(this.MAP)
+    if (!this.grphistory) {
+      this.grphistory = new L.featureGroup({ pane: 'pnTracks' }).addTo(this.MAP)
     }
     if (!this.grpcenterlines) {
       this.grpcenterlines = new L.featureGroup({ pane: 'pnCenterlines' }).addTo(this.MAP)
@@ -225,7 +227,7 @@ export default {
             style: this._STILE('ghost'),
             snapIgnore: true
           })
-          .addTo(this.grpadminghost);
+          .addTo(this.grpbrooklinepoly);
 
       }) //axios.then
       .catch(e => {
@@ -239,9 +241,12 @@ export default {
       this.meta.centerlinesLength = this.$TURFLENGTH(this.grpcenterlines.toGeoJSON())
     });
 
+
+
     this.loadings.app = false;
 
-    this._TRACE()
+    window.V = this;
+    console.log(window.V);
 
     this.$nextTick(() => {
       this._GETHISTORY()
@@ -277,59 +282,11 @@ export default {
         baseMap: null
       },
       baseMaps: [{
-        name: "Stamen Toner Lite",
-        handle: "stamen_toner_lite",
-        urii: "https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png",
-        thmb: "https://stamen-tiles-c.a.ssl.fastly.net/toner-lite/18/79279/96968@2x.png",
-        hue: "light"
-      }, {
         name: "Stamen Terrain",
         handle: "stamen_terrain",
         urii: "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}@2x.png",
         thmb: "https://stamen-tiles-b.a.ssl.fastly.net/terrain/16/19819/24242@2x.png",
         hue: "light"
-      }, {
-        name: "Google Hybrid",
-        handle: "google_hybrid",
-        urii: "https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
-        thmb: "https://mt3.google.com/vt/lyrs=y&x=79279&y=96968&z=18",
-        hue: "dark"
-      }, {
-        name: "OpenCycleMap",
-        handle: "ocm",
-        urii: "https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
-        thmb: "https://tile.thunderforest.com/cycle/18/79279/96968.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
-        hue: "dark"
-      }, {
-        name: "Pioneer",
-        handle: "ocm_pioneer",
-        urii: "https://tile.thunderforest.com/pioneer/{z}/{x}/{y}.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
-        thmb: "https://tile.thunderforest.com/pioneer/18/79279/96968.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
-        hue: "light"
-      }, {
-        name: "Mobile Atlas",
-        handle: "ocm_mobile",
-        urii: "https://tile.thunderforest.com/mobile-atlas/{z}/{x}/{y}.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
-        thmb: "https://tile.thunderforest.com/mobile-atlas/18/79279/96968.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
-        hue: "light"
-      }, {
-        name: "Carto Positron",
-        handle: "carto_positron",
-        urii: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
-        thmb: "https://cartodb-basemaps-c.global.ssl.fastly.net/light_all/18/79279/96968.png",
-        hue: "light"
-      }, {
-        name: "Carto Dark Matter",
-        handle: "carto_darkmatter",
-        urii: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png",
-        thmb: "https://cartodb-basemaps-c.global.ssl.fastly.net/dark_all/18/79279/96968.png",
-        hue: "light"
-      }, {
-        name: "Spinal Map",
-        handle: "ocm_spinal",
-        urii: "https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
-        thmb: "https://tile.thunderforest.com/spinal-map/18/79279/96968.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
-        hue: "dark"
       }],
       traceFake: [
         { lng: -71.12760288455770308, lat: 42.34877616006091472, order: 0 },
@@ -389,7 +346,7 @@ export default {
           return { dashArray: "2 5 10", color: `#87D100`, fill: false, weight: 12, opacity: .8 }
           break;
         case 'untraversed':
-          return { color: "#0D7CD6", fillColor: "#0D7CD6", fill: true, weight: 2, opacity: .88 }
+          return { color: "#0D7CD6", fillColor: "#0D7CD6", fill: true, weight: 2, opacity: .95 }
           break;
         case 'incomingReturn':
           return { color: `rgba(120, 227, 253, 1)`, fill: false, dashArray: "2 5 10", opacity: .9, width: 5, weight: 8 }
@@ -412,7 +369,7 @@ export default {
         case 'trackinvalid':
           return { color: "rgba(136, 23, 60, 1)", fill: false, opacity: 1 }
           break;
-        case 'incomingHistory':
+        case 'history':
           // trackTime = o ? this.$MOMENT(o).unix() : this.$MOMENT().unix()
 
           // norm = trackTime ? (trackTime - projectStart) / (today - projectStart) + .3 : 1
@@ -481,7 +438,7 @@ export default {
     },
     _FAKETRACE: function() {
 
-      this._META('history')
+      // this._META('history')
 
       var iz = 0;
       var timerID = setInterval(() => {
@@ -490,7 +447,7 @@ export default {
           this.trace.push(tf ? tf : null)
 
         },
-        5000);
+        1000);
 
     },
     _BANNERCO: function(w) {
@@ -523,7 +480,7 @@ export default {
 
       // if ('geolocation' in navigator) {
       navigator.geolocation.watchPosition((watchedPosition => {
-          this.konsole = [{ timeout: 20, klass: 'has-text-info', msg: watchedPosition.coords.latitude, sender: "if.geolocation" }]
+          // this.konsole = [{ timeout: 20, klass: 'has-text-info', msg: watchedPosition.coords.latitude, sender: "if.geolocation" }]
           this.trace.push({ lat: watchedPosition.coords.latitude, lng: watchedPosition.coords.longitude })
 
         }), (err) => {
@@ -550,15 +507,31 @@ export default {
         // this.grptracecenterlines.clearLayers();
         this.grptrace.clearLayers();
 
+        let mrRecent = this.trace.length == 1 ? this.$_.last(this.$_.compact(this.trace)) : this.$_.last(this.$_.compact(this.trace), 2)[1];
+        // console.log("mostRecent", mrRecent);
         //  mrt WiLL bE ThE MOSt reCenTly-added trACE cooRdS
-        let mrt = this.$_.last(this.$_.compact(this.trace));
+        // let mrt = this.$_.last(this.$_.compact(this.trace));
+
         //  ThIs is a PrOpeR geOM mAde FRom Mrt
-        let np = this.$TURFH.point([mrt.lng, mrt.lat])
-          //  thiS Is A 100M buffEr AROUNd SAiD gEOm
-        let bufferedTracePoint = this.$TURFBUFFER(np, 100, { units: "meters" });
+        let mrp = this.$TURFH.point([mrRecent.lng, mrRecent.lat])
+
+
+        //  thiS Is A 100M buffEr AROUNd SAiD gEOm
+        let bufferedTracePoint = this.$TURFBUFFER(mrp, 100, { units: "meters" });
+
+        // VIZ oF SAMe foR DeBug
+        // L.geoJSON(bufferedTracePoint, { style: this._STILE('debug') }).addTo(this.grpdebug)
+
 
         //  ViZ OuR loc trAce
+        // if (this.trace.length > 1) {
         if (this.trace.length > 1) {
+
+          let mrPenult = this.$_.last(this.$_.compact(this.trace), 2)[0];
+
+          let mrpp = this.$TURFH.point([mrPenult.lng, mrPenult.lat])
+            // Now wE CAN GeT beAriNG tOO
+          let bearing = this.$TURF_bearing(mrp, mrpp);
 
           // gEn A LinEStRiNg from THE curRENt TrACE
           let LS = this.$TURFH.lineString(this.$_.map(this.$_.compact(this.trace), tr => {
@@ -574,21 +547,48 @@ export default {
 
           //  ANd MAke THe mAp FOlLoW US (MAybE)
           if (!this.zpause) {
-            this.MAP.setView(L.latLng(np.geometry.coordinates[1], np.geometry.coordinates[0]), 15, { animate: true })
+            this.MAP.setView(L.latLng(mrp.geometry.coordinates[1], mrp.geometry.coordinates[0]), 15, { animate: true })
           }
 
           // we AlSO WAnT A bUfFER aRoUNd ThE activE TraCE SO WE don't RecomMeND (BelOW) lengths we VeRy ReceNTLY cOvErEd
-          L.geoJSON(LSB, {
-            style: this._STILE('debug')
-          }).addTo(this.grpdebug)
+          // L.geoJSON(LSB, {
+          //   style: this._STILE('debug')
+          // }).addTo(this.grpdebug)
+
+          var directions = [bearing];
+
+          var viewpoint = L.viewpoint([mrRecent.lat, mrRecent.lng], {
+            id: 1, // if not specified, _leaflet_id will be used
+            radius: 8,
+            fillColor: '#87D100',
+            color: 'white',
+            fillOpacity: 1,
+            directions: directions,
+            arrow: {
+              width: 10, // pixels
+              height: 10, // pixels
+              offset: 0, // pixels
+              stroke: true,
+              color: 'white',
+              weight: 3,
+              opacity: 1,
+              fill: true,
+              fillColor: '#87D100',
+              fillOpacity: 1
+            }
+          }).addTo(this.grptrace).bringToFront()
 
           //  ThIs Is the tOWN BordEr
-          let bl = this.$TURF_polygontoline(this.grpadminghost.toGeoJSON().features[0])
+          // let bl = this.$TURF_polygontoline(this.grpbrooklinepoly.toGeoJSON().features[0])
+
 
           //  IF the mosT RECeNT tRacE poinT doEsNt FAlL WITHIN ANY OF THE BuffEreD hIstORy tRACKS...
-          if (!this.$TURF_booleanwithin(np, this.$TURFCOMBINE(this.grpbuffered.toGeoJSON()).features[0])) {
+          let ptWithinHistoryBuffer = this.$TURF_booleanwithin(mrp, this.grpbuffered.toGeoJSON().features[0])
+            // console.log("ptWithinHistoryBuffer", ptWithinHistoryBuffer);
+            // if (!this.$TURF_booleanwithin(np, this.$TURFCOMBINE(this.grpbuffered.toGeoJSON()).features[0])) {
+          if (!ptWithinHistoryBuffer) {
 
-            //  ...We look FOr CentERLiNe FeATUreS WHoSE CeNtERPOInts aRe WitHiN our BUfFEed TracePOINT
+            // ...We look FOr CentERLiNe FeATUreS WHoSE CeNtERPOInts aRe WitHiN our BUfFEed TracePOINT
             this.$_.each(this.grpcenterlines.toGeoJSON().features, fea => {
                 let centerPoint = this.$TURF_center(fea)
                   // is tHe FEAtUre'S CentERpoINT WIThin (The BuFfERED vERSion of) our cURReNt tRaCePoINT?
@@ -604,18 +604,21 @@ export default {
 
 
           //  thIs aDdS A renDerIng OF ThE buffERedTRaCePOiNT For dEBug fuN
-          //  l.gEOjSon(buFFErEdtracePoinT, { sTYle: This._STilE('DebuG') }).ADdto(THIs.grpdebug)
+          // L.geoJSON(bufferedTracePoint, { style: this._STILE('debug') }).addTo(this.grpdebug)
 
           //  NoW LEt'S seT A FLAg For wHeTHeR We'rE sTilL iN ToWn Or not
-          this.meta.within = this.$TURF_booleanwithin(np, this.grpadminghost.toGeoJSON().features[0]);
+          this.meta.within = this.$TURF_booleanwithin(mrp, this.grpbrooklinepoly.toGeoJSON().features[0]);
 
           //  And A flag fOR WHETHer wE ThiNk WE'Ve bEEn hERE befORe or NoT
-          this.meta.been = this.$_.some(this.tracks.buffered.features, fea => {
-            return this.$TURF_booleanwithin(np, fea);
+          this.meta.been = this.$_.some(this.grpbuffered.features, fea => {
+            return this.$TURF_booleanwithin(mrp, fea);
           });
 
           //  AnD alSO leT'S upDAte ourSelvES ABoUT hOW cLOse WE Are TO ToWN bORDer (comINg Or GOiNg)
-          this.meta.distanceToBorder = this.$TURF_pointtolinedistance(np, bl.features[0], { units: 'meters' })
+          // this.meta.distanceToBorder = this.$TURF_pointtolinedistance(mrp, this.$TURFCOMBINE(this.border).features[0], { units: 'meters' })
+          // this.meta.distanceToBorder = this.$TURF_pointtolinedistance(mrp, this.border, { units: 'meters' })
+          this.meta.distanceToBorder = this.$TURF_pointtolinedistance(mrp, this.border.features[0], { units: 'meters' })
+
 
           this.meta.traceLength = this.$TURFLENGTH(this.grptrace.toGeoJSON()).toFixed(1)
 
@@ -652,41 +655,63 @@ export default {
           this.tracks.history = G;
         });
 
+        $.getJSON('static/ebl-buffered.geojson', G => {
+          L.geoJSON(G, {
+            style: this._STILE('buffer')
+          }).addTo(this.grpbuffered);
+
+          this.loadings.app = false;
+
+        });
+
 
         // this.meta.historyLengthTotal = this.$TURFLENGTH(this.grphistory.toGeoJSON())
+
+        this._TRACE()
+          // this._FAKETRACE()
 
       } //githizterrie
       ,
     _MAPHISTORY: function() {
 
-      this.grphistorytracks.clearLayers()
+      this.grphistory.clearLayers()
 
-      if (this.tracks.history && this.tracks.history.features.length > 0) {
-        this.loadings.app = true;
+      if (this.tracks.history) {
+        // this.loadings.app = true;
 
-        this.$_.each(this.tracks.history.features, trackFeature => {
+        // this.$_.each(this.tracks.history.features, trackFeature => {
 
 
-            L.geoJSON(trackFeature, {
+        //     L.geoJSON(trackFeature, {
 
-                style: this._STILE('incomingHistory', trackFeature.properties.time)
-              })
-              .bindPopup(layer => {
-                return `<h5 class="is-size-5">${layer.feature.properties.name}</h5>`;
-              })
-              .addTo(this.grphistorytracks);
+        //         style: this._STILE('incomingHistory', trackFeature.properties.time)
+        //       })
+        //       .bindPopup(layer => {
+        //         return `<h5 class="is-size-5">${layer.feature.properties.name}</h5>`;
+        //       })
+        //       .addTo(this.grphistory);
 
-          }) //eetch.history
+        //   }) //eetch.history
 
-        if (!this.actives.bboxString) {
-          this.MAP.fitBounds(this.grphistorytracks.getBounds())
-        }
+        L.geoJSON(this.tracks.history, { style: this._STILE('history') })
+          .addTo(this.grphistory);
 
-        this.loadings.app = false;
+        this.meta.historyLengthTotal = this.$TURFLENGTH(this.grphistory.toGeoJSON())
 
-        this._BUFFERTRACKS()
-          // this._LAUDIT('grphistorytracks', false)
+        // this.MAP.fitBounds(this.grpbrooklinepoly.getBounds())
+        this.MAP.fitBounds(this.grphistory.getBounds())
+          /*if (!this.actives.bboxString) {
+            this.MAP.fitBounds(this.grphistory.getBounds())
+          }*/
+
+        // this.loadings.app = false;
+
+        // this._BUFFERHISTORY()
+        // this._LAUDIT('grphistory', false)
       } //if history
+      else {
+        this.konsole = [{ timeout: 20, klass: 'has-text-error', msg: `no history to map`, sender: "if.map.history" }]
+      }
     },
     _META: function(w) {
 
@@ -696,16 +721,16 @@ export default {
           this.meta.distanceToBorder = 888
           break;*/
         case 'history':
-          if (this.border && this.grphistorytracks.getLayers().length > 0) {
+          if (this.border && this.grphistory.getLayers().length > 0) {
 
             // combined prior tracks
-            let hh = this.$_.flatten(this.$TURFCOMBINE(this.grphistorytracks.toGeoJSON()).features[0].geometry.coordinates, 1)
+            // let hh = this.$_.flatten(this.$TURFCOMBINE(this.grphistory.toGeoJSON()).features[0].geometry.coordinates, 1)
 
             // ...as a single linestring
-            let line = this.$TURFH.lineString(hh)
+            // let line = this.$TURFH.lineString(hh)
 
             // split that megaline by town border
-            let split = this.$TURF_linesplit(line, this.border.features[0]);
+            // let split = this.$TURF_linesplit(line, this.border.features[0]);
 
             // some counters
             let lengthValid = 0
@@ -714,14 +739,14 @@ export default {
             // gotta test the centerpoints
             /*this.$_.each(split.features, (fea, feai) => {
 
-              let winout = this.$TURF_booleanwithin(this.$TURF_center(fea), this.grpadminghost.toGeoJSON().features[0])
+              let winout = this.$TURF_booleanwithin(this.$TURF_center(fea), this.grpbrooklinepoly.toGeoJSON().features[0])
 
               winout ? lengthValid = lengthValid + this.$TURFLENGTH(fea, { units: "kilometers" }) : lengthInvalid = lengthInvalid + this.$TURFLENGTH(fea, { units: "kilometers" })
                 // L.geoJSON(fea, { style: stil }).addTo(this.grpdebug);
             })*/
 
-            this.meta.historyLengthValid = lengthValid
-            this.meta.historyLengthInvalid = lengthInvalid
+            // this.meta.historyLengthValid = lengthValid
+            // this.meta.historyLengthInvalid = lengthInvalid
 
           } else {
             console.log(`border not ready`)
@@ -735,18 +760,16 @@ export default {
 
 
     },
-    _BUFFERTRACKS: function(F) {
+    _BUFFERHISTORY: function(F) {
 
         this.grpbuffered.clearLayers()
 
         // this buffer works beautifully but doesn't cut Lawton out
-        this.tracks.buffered =
-
-          this.$TURFBUFFER(this.grphistorytracks.toGeoJSON(), 10, { units: 'meters' })
+        this.tracks.buffered = this.$TURFBUFFER(this.grphistory.toGeoJSON(), 10, { units: 'meters' })
 
       } //traxbuhfrd
       ,
-    _MAPBUFFEREDTRACKS: function(F) {
+    _MAPBUFFEREDHISTORY: function(F) {
 
 
         L.geoJSON(this.tracks.buffered, {
@@ -756,8 +779,8 @@ export default {
           })
           .addTo(this.grpbuffered);
 
-        this.grphistorytracks.bringToFront();
-        this._LAUDIT('grpbuffered', true)
+        // this.grphistory.bringToFront();
+        // this._LAUDIT('grpbuffered', true)
 
       } //traxbuhfrd
       ,
@@ -780,15 +803,15 @@ export default {
         let c = null;
 
         switch (H) {
-          case 'grphistorytracks':
+          case 'grphistory':
             if (T) {
-              this.MAP.addLayer(this.grphistorytracks)
+              this.MAP.addLayer(this.grphistory)
               this.$_.findWhere(this.layers, { handle: H }).on = true
             } else {
               // current state is?
               c = this.$_.findWhere(this.layers, { handle: H }).on
                 // flip it on the map
-              c ? this.MAP.removeLayer(this.grphistorytracks) : this.MAP.addLayer(this.grphistorytracks);
+              c ? this.MAP.removeLayer(this.grphistory) : this.MAP.addLayer(this.grphistory);
               // flip it in layers meta
               this.$_.findWhere(this.layers, { handle: H }).on = !c
             }
@@ -845,14 +868,14 @@ export default {
         } //handler
     } //loadings
     ,
-    "tracks.buffered": {
-      handler: function(vnew, vold) {
+    /*    "tracks.buffered": {
+          handler: function(vnew, vold) {
 
-          // this._GETPROPOSED()
-          this._MAPBUFFEREDTRACKS()
-        } //handler 
-    } //loadings 
-    ,
+              // this._GETPROPOSED()
+              this._MAPBUFFEREDHISTORY()
+            } //handler 
+        } //loadings 
+        ,*/
     "tracks.history": {
       handler: function(vnew, vold) {
           this._MAPHISTORY()
@@ -865,32 +888,32 @@ export default {
           this._MAPTRACE()
           this._META('trace')
         } //handler
-    } //tracks.HISTORY
-    ,
-    "actives.baseMap": {
-      handler: function(vnew, vold) {
+    } //tracks
+    //   ,
+    //   "actives.baseMap": {
+    //     handler: function(vnew, vold) {
 
-          let buri = this.$_.findWhere(this.baseMaps, { handle: this.actives.baseMap }).urii
-          if (buri) {
-            this.grpbasemaps.clearLayers()
-            this.grpbasemaps.addLayer(new L.TileLayer(buri));
-          }
+    //         let buri = this.$_.findWhere(this.baseMaps, { handle: this.actives.baseMap }).urii
+    //         if (buri) {
+    //           this.grpbasemaps.clearLayers()
+    //           this.grpbasemaps.addLayer(new L.TileLayer(buri));
+    //         }
 
-        } //handler
-    } //tracks.HISTORY
-    ,
-    "meta.within": {
-      handler: function(vnew, vold) {
-          if (vold && !vnew) {
-            // this.konsole.push({ timeout: 6, klass: 'has-text-danger', msg: "YOU JUST LEFT BROOKLINE" })
-            this.konsole = [{ timeout: 6, klass: 'has-text-danger', msg: "YOU JUST LEFT BROOKLINE :-<", sender: "meta.within.watcher" }]
-          }
-          if (vnew && !vold) {
-            // this.konsole.push({ timeout: 6, klass: 'has-text-info', msg: "ur back in brooklinline :-)" })
-            this.konsole = [{ timeout: 6, klass: 'has-text-info', msg: "back in brookline :-)", sender: "meta.within.watcher" }]
-          }
-        } //handler
-    } //tracks.HISTORY
+    //       } //handler
+    //   } //tracks.HISTORY
+    //   ,
+    //   "meta.within": {
+    //     handler: function(vnew, vold) {
+    //         if (vold && !vnew) {
+    //           // this.konsole.push({ timeout: 6, klass: 'has-text-danger', msg: "YOU JUST LEFT BROOKLINE" })
+    //           this.konsole = [{ timeout: 6, klass: 'has-text-danger', msg: "YOU JUST LEFT BROOKLINE :-<", sender: "meta.within.watcher" }]
+    //         }
+    //         if (vnew && !vold) {
+    //           // this.konsole.push({ timeout: 6, klass: 'has-text-info', msg: "ur back in brooklinline :-)" })
+    //           this.konsole = [{ timeout: 6, klass: 'has-text-info', msg: "back in brookline :-)", sender: "meta.within.watcher" }]
+    //         }
+    //       } //handler
+    //   } //tracks.HISTORY
   } //watch
 };
 </script>

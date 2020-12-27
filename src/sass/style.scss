@@ -32,9 +32,11 @@ $flax: rgba(239, 221, 141, 1);
 $lemon-yellow-crayola: rgba(244, 253, 175, 1);
 $naples-yellow:#F8E16C;
 $ebl-white:rgb(233,233,233);
+$ebl-grey:rgb(170, 177, 187);
 $celadon-blue: rgba(36, 123, 160, 1);
 $sky-blue-crayola: rgba(120, 227, 253, 1);
 $barn-red: rgba(111, 26, 7, 1);
+$flickr-pink:#F72585;
 
 $proposed:$celadon-blue;
 
@@ -52,11 +54,31 @@ $appWhite:$ebl-white;
   color:$appWhite;
 }
 
+a.street{
+	.on{
+		color:$celadon-blue;
+	}
+	color:$ebl-grey;
+	&:hover{
+		color:darken($ebl-grey,62%);
+	}
+}
+
+#ebl-isoRide-wrapper{
+	min-height:4vh;
+	max-height:4vh;
+color:$sky-blue-crayola;
+}
+
 .ebl-is-disabled{
 	cursor: not-allowed;
 }
-.ebl-bt{
-	&:hover{cursor:pointer;color:$persimmon;}
+.ebl-bt-trackmenu{
+	&:hover{cursor:pointer;color:$sky-blue-crayola;}
+}
+.ebl-bt-trackmenu-on{
+	color:$sky-blue-crayola;
+	&:hover{cursor:pointer;color:$appDark;}
 }
 
 .ebl-filter-warning{
@@ -79,11 +101,21 @@ a{
 	background-color:rgba($appWhite,.9);
 	width:100%;
 }
-#ebl-dashboard-wrapper.is-splayed{left:85%;}
+#ebl-dashboard-wrapper-splayed
+{
+	background-color:rgba($appWhite,.9);
+
+}
 
 .ebl-dash-heading{
 	font-size:.8em;
 	color:$appWhite;
+
+	a.navbar-item{
+		&:hover{
+			color:darken($appWhite,22%);
+			background-color:rgba(55,5,5,0);}
+	}
 }
 
 .ebl-dash-item{
@@ -167,11 +199,25 @@ cursor:not-allowed;
 	color:$celadon-blue;
 }
 
-.ebl-nav-on
+
+.ebl-nav{
+&:hover{
+	color:$persimmon;
+}
+	color:$barn-red;
+}
+
+.ebl-nav.ebl-nav-on
 {
 	color:$persimmon;
 	&:hover{color:darken($persimmon,12%);}
 }
+
+.ebl-nav.is-diabled{
+	color:grey;
+cursor:not-allowed;
+}
+
 .ebl-footer-on
 {
 	color:$dark-sienna;
@@ -298,4 +344,5 @@ height:80px;
 	animation-iteration-count:1;
 }
 
-@import 'assets/fontello/css/fontello.css'
+@import 'assets/fontello/css/fontello.css';
+@import 'assets/bulma-tooltip.min.css';

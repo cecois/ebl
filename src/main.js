@@ -61,7 +61,7 @@ const TURFLINESPLIT = require('@turf/line-split').default
 const TURFPOLYGONTOLINE = require('@turf/polygon-to-line').default
 const TURFNEARESTPOINTONLINE = require('@turf/nearest-point-on-line').default
 const TURFPOINTTOLINEDISTANCE = require('@turf/point-to-line-distance').default
-
+const TURFBEARING = require('@turf/bearing').default
 
 
 // const TURFPOLYGONIZE = require('@turf/polygonize').default
@@ -121,6 +121,9 @@ Object.defineProperty(Vue.prototype, '$TURF_pointtolinedistance', {
 	// })
 Object.defineProperty(Vue.prototype, '$TURF_nearestpoint', {
 	value: TURFNEARESTPOINT
+})
+Object.defineProperty(Vue.prototype, '$TURF_bearing', {
+	value: TURFBEARING
 })
 Object.defineProperty(Vue.prototype, '$TURF_lineintersect', {
 		value: TURFLINEINTERSECT

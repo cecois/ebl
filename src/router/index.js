@@ -9,7 +9,7 @@ export default new Router({
 		name: "EBLTracer",
 		component: EBLT
 	}, {
-		path: "/:ridekey?/:rideiso?/:query?/:basemap?/:splayed?/:bbox?",
+		path: "/:ridekey?/:rideiso?/:streetiso?/:query?/:basemap?/:splayed?/:bbox?",
 		name: "EBL",
 		component: EBL
 	}]

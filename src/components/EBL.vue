@@ -19,7 +19,7 @@
           <div>
             <p class="heading ebl-dash-heading">
               <a @click.default="page.splayed=!page.splayed" class="navbar-item is-size-1">
-                <i :class="['fas','fa-star-half-alt',page.splayed?'ebl-nav-off':'ebl-nav-on']"></i>
+                <i :class="['fas',page.splayed?'fa-star-half-alt':'fa-star-half',page.splayed?'ebl-nav-off':'ebl-nav-on']"></i>
                 <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
               </a>
             </p>
@@ -38,11 +38,19 @@
         </div>
       </div>
     </div nb="/.columns.parentOf.konsole">
-    <div :class="['container','p-6','is-fullhd',page.splayed?'is-splayed':'']" id="ebl-dashboard-wrapper">
+    <div v-if="!page.splayed" class="container is-fullhd pt-6 pl-2 pr-2" id="ebl-dashboard-wrapper">
       <div class="columns">
         <!-- <div v-if="cmpTrackHistory.length>0" class="column has-text-centered">
           up to (and including) <span :class="[actives.rideKey?'ebl-filter-warning':'']" v-html="$_.last(cmpIncludedTrackNames)"></span> frm {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}
         </div nb="/.column"> -->
+        <div class="column is-marginless" id="ebl-isoRide-wrapper">
+          <div class="pl-6" v-if="rideIso">
+            {{rideIso.name}}: <span v-if="meta.isolength">{{meta.isolength.toFixed(1)}}km</span> on <span v-if="this._GETACTIVERIDEKEYOB()">{{this.$MOMENT(this._GETACTIVERIDEKEYOB().properties.time).format('YYYY.MMM.DD')}}</span>
+          </div>
+          <div v-else-if="rideIso" class="pl-1 is-size-7">
+            {{rideIso.name.replace("Isolated Ride ",'')}}
+          </div>
+        </div>
       </div nb="/.columns">
       <!--
  888888 88 88     888888 .dP"Y8
@@ -50,14 +58,8 @@
   88   88 88  .o 88""   o.`Y8b
   88   88 88ood8 888888 8bodP'
    -->
-      <div v-if="!page.splayed" class="tile is-ancestor">
+      <div class="tile is-ancestor">
         <div class="tile is-vertical is-8">
-          <article class="tile">
-            <div class="title">
-              <!-- <p v-if="cmpTrackHistory.length>0" class="panel-tabs">
-              </p> -->
-            </div>
-          </article>
           <div class="tile">
             <div class="tile is-parent is-vertical">
               <article class="tile is-child notification has-text-centered">
@@ -108,25 +110,48 @@
   |__| |__|\_|__|__|__|\_| \___|
  -->
                 <nav id="trackHistoryPanel" class="xpanel">
-                  <p class="control has-icons-left">
+                  <!-- <p class="control has-icons-left">
                     <input class="input" type="text" placeholder="" v-model="liveFilter.string">
                     <span class="icon is-left">
         <i class="fas fa-search" aria-hidden="true"></i>
       </span>
-                    <i @click="actives.rideKey=null" :class="['fas',' fa-slash',' ebl-bt',' mt-2',' mb-0',actives.rideKey?'':'ebl-is-disabled']"></i>
-                  </p>
-                  <a @click.prevent="actives.rideKey=trk.trackName" v-for="trk in menus.tracks" :class="[$_.contains(cmpIncludedTrackNames,trk.trackName)?'included':'','panel-block','is-ac','waye']">
+                    <i @click="actives.rideKey=null" :class="['fas',' fa-slash',' ebl-bt-trackmenu',' mt-2',' mb-0',actives.rideKey?'':'ebl-is-disabled']"></i>
+                  </p> -->
+                  <a @click.prevent="actives.rideKey==trk.trackName?actives.rideKey=null:actives.rideKey=trk.trackName" v-for="trk in menus.tracks" :class="[$_.contains(cmpIncludedTrackNames,trk.trackName)?'included':'','panel-block','is-ac','waye']">
                     <span class="panel-icon">
-      <i :class="['ebl-bt',actives.rideKey==trk.trackName?'fas fa-circle ebl-filter-warning':'far fa-circle']" aria-hidden="true"></i>
-    </span>{{trk.trackName}} <span class="is-size-7 has-text-grey-lighter">&nbsp;({{$MOMENT(trk.trackTime).format('YY.MMM.DD')}})</span>
+      <i :class="['ebl-bt-trackmenu',actives.rideKey==trk.trackName?'fas fa-circle ebl-bt-trackmenu-on':'far fa-circle']" aria-hidden="true"></i>
+    </span><span :class="[actives.rideKey==trk.trackName?'ebl-bt-trackmenu-on':'']">{{trk.trackName}}</span> <span class="is-size-7 has-text-grey-lighter">&nbsp;({{$MOMENT(trk.trackTime).format('YY.MMM.DD')}})</span>
                   </a>
                 </nav>
               </div nb="/traks">
             </div>
           </article>
         </div>
-      </div>
-      <!-- 
+      </div NB="/.tile.is-ancestor">
+      <div class="tile is-ancestor">
+        <div class="tile is-parent is-vertical">
+          <article v-if="_GETACTIVERIDEKEYOB()" class="tile is-child has-text-centered">
+            <p class="title">streets touched</p>
+            <p class="ebl-filter-warning">*on* {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</p>
+            <p v-if="cmpStreetsPerIso.length>0" class="is-size-7">
+              <a :class="[actives.streetIso==str.streetName?'street-on':'street']" @click.prevent="actives.streetIso=actives.streetIso==str.streetName?null:str.streetName" v-for="str in cmpStreetsPerIso">{{str.streetName}} ({{str.count}}), </a>
+            </p>
+            <p v-else class="is-size-7">
+              <span>calculated per isolated track, empty otherwise</span>
+            </p>
+          </article>
+          <article class="tile is-child has-text-centered">
+            <p class="title">streets ahead</p>
+            <!-- <p class="">streets not yet touched</p> -->
+            <p class="">
+              <!-- <span v-for="str in tracks.streetsAhead">{{str}}, </span> -->
+              <a :class="[actives.streetIso==str?'street-on':'street']" @click.prevent="actives.streetIso=str==actives.streetIso?null:str" v-for="str in tracks.streetsAhead">{{str}}, </a>
+            </p>
+          </article>
+        </div>
+      </div NB="/.tile.is-ancestor">
+    </div NB="/#ebl-dashboard-wrapper">
+    <!-- 
 
   .g8"""bgd                      .g8"""bgd `7MM"""YMM
 .dP'     `M                    .dP'     `M   MM    `7
@@ -135,41 +160,68 @@ MM           MM    MM  8)   MM MM            MMmmMM    8I   `"
 MM.    `7MMF'MM    MM   ,pm9MM MM.    `7MMF' MM   Y  , `YMMMa.
 `Mb.     MM  MM    MM  8M   MM `Mb.     MM   MM     ,M L.   I8
   `"bmmmdPY  `Mbod"YML.`Moo9^Yo. `"bmmmdPY .JMMmmmmMMM M9mmmP'
-
+ggz
  -->
-      <table v-if="page.splayed" class="table is-narrow">
-        <tbody>
-          <tr>
-            <th>ttl.km</th>
-            <td>{{meta.centerlinesLength.toFixed(1)}}</td>
-          </tr>
-          <tr>
-            <th>1</th>
-            <td>38</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <div v-if="page.splayed" class="container is-fullhd pt-6" id="ebl-dashboard-wrapper-splayed">
+      <nav class="level">
+        <div class="level-item has-text-centered">
+          <div class="has-text-centered">
+            <p class="has-text-centered" id="">
+              <p class="">%</p>
+              <p class="title">
+                <pie-chart position="relative" height="50px" width="33%" :legend=false :donut=true :data="_CHARTPIECOMPLETE('data')" :colors="_CHARTPIECOMPLETE('colors')"></pie-chart>
+              </p>
+            </p>
+          </div>
+        </div>
+        <div class="level-item has-text-centered">
+          <div>
+            <p class="heading">km cmplt</p>
+            <p class="title">{{meta.historyLengthValid.toFixed(1)}}</p>
+          </div>
+        </div>
+        <div v-if="_GETACTIVERIDEKEYOB()" class="level-item has-text-centered">
+          <div>
+            <p class="heading">Isltd Rid</p>
+            <p class="title">{{_GETACTIVERIDEKEYOB().properties.name}}
+              <div class="has-text-grey-light is-size-7">
+                {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</div>
+            </p>
+          </div>
+        </div>
+        <div v-if="_GETACTIVERIDEKEYOB()" class="level-item has-text-centered">
+          <div>
+            <p class="heading">IsltdRid.len</p>
+            <p class="title">{{meta.isolength.toFixed(1)}}</p>
+          </div>
+        </div>
+      </nav>
+      <div class="columns">
+        <div class="column has-text-centered is-size-6">
+          <p v-if="_GETACTIVERIDEKEYOB()" class="ebl-filter-warning">#s as of {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</p>
+        </div>
+      </div>
+    </div NB="#/ebl-dashboard-wrapper-splayed">
     <!-- FOOTER -->
     <footer class="footer pt-1 pb-1 has-text-centered">
-      <nav id="ebl-layers" class="level is-mobile pl-2 pr-2">
+      <div id="ebl-layers" class="level is-mobile pl-2 pr-2 is-family-monospace">
         <!-- Left side -->
         <div class="level-left">
           <div class="level-item">
-            <a @click.default="_LAUDIT
-(L.handle)" v-for="L in layers" class="navbar-item">
-              <i :class="[`${L.klass}`,L.on?'ebl-nav-on':'']"><span class="pl-2">{{L.abbrev}}</span></i>
+            <!-- <p>Lorem ipsum dolor sit amet, <span class="has-tooltip-arrow" data-tooltip="Tooltip content">consectetur adipisicing elit</span>. Ipsa fugit dolores earum quod distinctio ducimus non dignissimos molestias amet corrupti voluptatum assumenda impedit beatae veritatis nemo veniam error, hic cumque.</p> -->
+            <a @click.default="$_.findWhere(layers,{group:L.group}).on=!$_.findWhere(layers,{group:L.group}).on" v-for="L in $_.filter(layers,l=>{return l.menued})" :class="['pr-5',L.on?'ebl-nav-on':'ebl-nav',(L.abbrev=='strt' && !streetIso)?'is-disabled':'',(L.abbrev=='iso' && !rideIso)?'is-disabled':'']">
+              <i :class="[`${L.klass}`]"></i><span :class="[L.klass=='icon-noun_binoculars'?'ml-3':'ml-1',L.on?'ebl-nav-on':'']">{{L.abbrev}}</span>
               <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
             </a>
           </div>
         </div>
         <div class="level-right pb-2">
           <!-- <span class="is-family-code is-size-7 has-text-grey-lighter pr-2" v-html="`{basemap:${$_.findWhere(this.baseMaps, { handle: this.actives.baseMap }).name}}`"></span> -->
-          <figure v-for="bm in baseMaps" class="image is-24x24 mr-2">
+          <figure :data-tooltip="bm.name" v-for="bm in baseMaps" class="image is-24x24 mr-2 has-tooltip-arrow">
             <img @click="actives.baseMap=bm.handle" :class="['bt_baseMap','is-rounded',bm.handle==actives.baseMap? 'active': '']" :src="bm.thmb">
           </figure>
         </div>
-      </nav>
+      </div>
     </footer>
   </div nb="app root">
 </template>
@@ -192,6 +244,7 @@ export default {
     this.actives = {
       rideKey: (!this.$route.params.ridekey || this.$route.params.ridekey == '$') ? null : this.$route.params.ridekey,
       rideIso: (!this.$route.params.rideiso || this.$route.params.rideiso == '$') ? null : this.$route.params.rideiso,
+      streetIso: (!this.$route.params.streetiso || this.$route.params.streetiso == '$') ? null : this.$route.params.streetiso,
       baseMap: (!this.$route.params.basemap || this.$route.params.basemap == '$') ? 'carto_positron' : this.$route.params.basemap,
       queryString: (!this.$route.params.query || this.$route.params.query == '$') ? null : this.$route.params.query,
       bboxString: (!this.$route.params.bbox || this.$route.params.bbox == '$') ? null : this.$route.params.bbox,
@@ -215,24 +268,9 @@ export default {
         this.actives.bboxString = this.MAP.getBounds().toBBoxString()
       })
 
-    if (this.actives.bboxString) {
 
-      let bba = this.actives.bboxString.split(',')
-
-      let bb = {
-        west: bba[0],
-        south: bba[1],
-        east: bba[2],
-        north: bba[3]
-      }
-      this.MAP.fitBounds([
-        [bb.south, bb.west],
-        [bb.north, bb.east]
-      ])
-    }
 
     let p = 408;
-
     this.MAP.createPane('pnBasemaps')
       .style.zIndex = (p - 1);
     this.MAP.createPane('pnAdmin')
@@ -247,49 +285,67 @@ export default {
       .style.zIndex = (p + 1);
     this.MAP.createPane('pnCenterlines')
       .style.zIndex = (p + 7);
+    this.MAP.createPane('pnStreetIso')
+      .style.zIndex = (p + 8);
     this.MAP.createPane('pnIso')
-      .style.zIndex = (p + 11);
+      .style.zIndex = (p + 9);
 
-
-    // groops
+    /*
+        // groops
+                    _  .-')                               _ (`-.   .-')
+                   ( \( -O )                             ( (OO  ) ( OO ).
+          ,----.    ,------.  .-'),-----.  .-'),-----.  _.`     \(_)---\_)
+         '  .-./-') |   /`. '( OO'  .-.  '( OO'  .-.  '(__...--''/    _ |
+         |  |_( O- )|  /  | |/   |  | |  |/   |  | |  | |  /  | |\  :` `.
+         |  | .--, \|  |_.' |\_) |  |\|  |\_) |  |\|  | |  |_.' | '..`''.)
+        (|  | '. (_/|  .  '.'  \ |  | |  |  \ |  | |  | |  .___.'.-._)   \
+         |  '--'  | |  |\  \    `'  '-'  '   `'  '-'  ' |  |     \       /
+          `------'  `--' '--'     `-----'      `-----'  `--'      `-----'
+    */
 
     if (!this.grpbasemaps) {
-      this.grpbasemaps = new L.featureGroup({ pane: 'pnBasemaps' }).addTo(this.MAP)
+      this.grpbasemaps = new L.featureGroup().addTo(this.MAP)
     }
 
     if (!this.grpadminghost) {
-      this.grpadminghost = new L.featureGroup({ pane: 'pnAdmin' }).addTo(this.MAP)
+      this.grpadminghost = new L.featureGroup().addTo(this.MAP)
     }
     if (!this.grphistorytracksValid) {
-      this.grphistorytracksValid = new L.featureGroup({ pane: 'pnTracksValid' }).addTo(this.MAP)
+      this.grphistorytracksValid = new L.featureGroup().addTo(this.MAP)
+      this.layers.push({ menued: false, group: "grphistorytracksValid", handle: 'grphistorytracksvalid', on: true, abbrev: "grphistorytracksValid", klass: 'icon-noun_buffer', fz: 1 })
     }
     if (!this.grphistorytracksInvalid) {
-      this.grphistorytracksInvalid = new L.featureGroup({ pane: 'pnTracksInvalid' }).addTo(this.MAP)
+      this.grphistorytracksInvalid = new L.featureGroup().addTo(this.MAP)
+      this.layers.push({ menued: false, group: "grphistorytracksInvalid", handle: 'grphistorytracksinvalid', on: true, abbrev: "grphistorytracksInvalid", klass: 'icon-noun_buffer', fz: 2 })
     }
     if (!this.grpcenterlines) {
-      this.grpcenterlines = new L.featureGroup({ pane: 'pnCenterlines' }).addTo(this.MAP)
+      this.grpcenterlines = new L.featureGroup().addTo(this.MAP)
     }
 
     if (!this.grpadmin) {
-      this.grpadmin = new L.featureGroup({ pane: 'pnAdmin' }).addTo(this.MAP)
+      this.grpadmin = new L.featureGroup().addTo(this.MAP)
     }
 
     let buri = this.$_.findWhere(this.baseMaps, { handle: this.actives.baseMap }).urii
     this.grpbasemaps.addLayer(new L.TileLayer(buri));
 
     if (!this.grpbuffered) {
-      this.grpbuffered = new L.featureGroup({ pane: 'pnBuffered' }).addTo(this.MAP)
-      this.layers.push({ handle: 'grpbuffered', on: false, abbrev: "hstb", klass: 'icon-noun_buffer' })
+      this.grpbuffered = new L.featureGroup().addTo(this.MAP)
+      this.layers.push({ menued: true, group: "grpbuffered", handle: 'grpbuffered', on: false, abbrev: "hstb", klass: 'icon-noun_buffer', fz: 0 })
     }
 
     if (!this.grpdebug) {
-      this.grpdebug = new L.featureGroup({ pane: 'pnDebug' }).addTo(this.MAP)
-        // this.layers.push({ handle: 'grpdebug', on: false, abbrev: "dbg", klass: 'bug' })
+      this.grpdebug = new L.featureGroup().addTo(this.MAP)
+        // this.layers.push({menued:true, handle: 'grpdebug', on: false, abbrev: "dbg", klass: 'bug' })
     }
 
     if (!this.grpisotracks) {
-      this.grpisotracks = new L.featureGroup({ pane: 'pnIso' }).addTo(this.MAP)
-      this.layers.push({ handle: 'grpisotracks', on: false, abbrev: "iso", klass: 'icon-noun_binoculars' })
+      this.grpisotracks = new L.featureGroup().addTo(this.MAP)
+      this.layers.push({ menued: true, group: "grpisotracks", handle: 'grpisotracks', on: false, abbrev: "iso", klass: 'icon-noun_binoculars', fz: 3 })
+    }
+    if (!this.grpstreetiso) {
+      this.grpstreetiso = new L.featureGroup().addTo(this.MAP)
+      this.layers.push({ menued: true, group: "grpstreetiso", handle: 'grpstreetiso', on: false, abbrev: "strt", klass: 'fa fa-road', fz: 4 })
     }
 
 
@@ -317,6 +373,22 @@ export default {
         this.konsole = [{ msg: e, klass: "error", timeout: 20, sender: "axios.catch.outline-buffer" }]
       }) //axios.catch*/
 
+    $.getJSON('static/ebl-buffered.geojson', G => {
+      L.geoJSON(G, {
+        style: this._STILE('buffer')
+      }).addTo(this.grpbuffered);
+      this.loadings.app = false;
+    });
+
+    // streets-ahead.json
+    // streets-hit-master.json
+    $.getJSON('static/streets-hit-master.json', H => {
+      this.tracks.streetsLog = H;
+    });
+
+    $.getJSON('static/streets-ahead.json', H => {
+      this.tracks.streetsAhead = H;
+    });
 
     axios
       .get(`static/brookline-outline.geojson`)
@@ -349,6 +421,10 @@ export default {
         style: this._STILE('centerlines')
       }).addTo(this.grpcenterlines);
       this.meta.centerlinesLength = this.$TURFLENGTH(this.grpcenterlines.toGeoJSON())
+        // could be there's a streetiso waiting on this
+      if (this.actives.streetIso) {
+        this._SETSTREETISO()
+      }
     });
 
     this.loadings.app = false;
@@ -356,6 +432,22 @@ export default {
     this.$nextTick(() => {
       this._GETHISTORY()
     })
+
+    if (this.actives.bboxString) {
+
+      let bba = this.actives.bboxString.split(',')
+
+      let bb = {
+        west: bba[0],
+        south: bba[1],
+        east: bba[2],
+        north: bba[3]
+      }
+      this.MAP.fitBounds([
+        [bb.south, bb.west],
+        [bb.north, bb.east]
+      ])
+    }
 
     window.V = this;
     console.log(window.V);
@@ -395,6 +487,27 @@ export default {
     //   }
 
     // },
+
+    cmpLayerOnns: function() {
+      return this.$_.sortBy(this.$_.filter(this.layers, l => {
+        return l.on
+      }), 'fz')
+    }, //cmpLayerOnns
+    cmpLayerOffs: function() {
+      return this.$_.filter(this.layers, l => {
+        return !l.on
+      })
+    }, //cmpLayerOffs
+    cmpStreetsPerIso: function() {
+
+      return this.$_.map(this.meta.streetsPerIso, spi => {
+        return {
+          streetName: this.$_.first(this.$_.uniq(this.$_.pluck(spi, 'streetName'))),
+          count: spi.length
+        }
+      })
+
+    },
     cmpIncludedTrackNames: function() {
 
       return this.actives.rideKey ? this.$_.pluck(this.$_.filter(this.menus.tracks, trk => {
@@ -425,7 +538,7 @@ export default {
       return []
         /*let propArray = this.$_.sortBy(this.$_.map(this.tracks.history, T => {
 
-          this.meta.trackmeta.push({
+          this.meta.trackMeta.push({
             track: this.$_.first(T.features).properties.name,
             length: this.$TURFLENGTH(T)
           })
@@ -443,21 +556,42 @@ export default {
   data() {
     return {
       MAP: null,
+      meta: {
+        within: true,
+        been: true,
+        centerlinesLength: 0,
+        historyLengthValid: 0,
+        historyLengthInvalid: 0,
+        traceLength: 0,
+        trackMeta: [],
+        streetsPerIso: []
+      },
       menus: { tracks: [] },
       border: null,
       debug: {},
+      streetIso: null,
       rideIso: null,
       liveFilter: { string: null },
       actives: {
         baseMap: null,
         rideKey: null,
-        rideIso: null
+        rideIso: null,
+        streetIso: null,
+        queryString: null,
+        bboxString: null,
+        splayed: null
       },
       baseMaps: [{
         name: "Stamen Toner Lite",
         handle: "stamen_toner_lite",
         urii: "https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png",
         thmb: "https://stamen-tiles-c.a.ssl.fastly.net/toner-lite/18/79279/96968@2x.png",
+        hue: "light"
+      }, {
+        name: "AllTrails Topo",
+        handle: "alltrails_topo",
+        urii: "https://us-topo.alltrails.com/{z}/{x}/{y}.png",
+        thmb: "https://us-topo.alltrails.com/13/2459/3025.png",
         hue: "light"
       }, {
         name: "Stamen Terrain",
@@ -471,6 +605,18 @@ export default {
         urii: "https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
         thmb: "https://mt3.google.com/vt/lyrs=y&x=79279&y=96968&z=18",
         hue: "dark"
+      }, {
+        name: "USGS All-Topo",
+        handle: "usgs_topo",
+        urii: "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/{z}/{y}/{x}",
+        thmb: "https://basemap.nationalmap.gov/arcgis/rest/services/USGSTopo/MapServer/tile/16/24242/19819",
+        hue: "light"
+      }, {
+        name: "USGS Relief",
+        handle: "usgs_relief",
+        urii: "https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/tile/{z}/{y}/{x}",
+        thmb: "https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/tile/16/24242/19819",
+        hue: "light"
       }, {
         name: "OpenCycleMap",
         handle: "ocm",
@@ -509,20 +655,12 @@ export default {
         hue: "dark"
       }],
       layers: [],
-      meta: {
-        within: true,
-        been: true,
-        centerlinesLength: 0,
-        historyLengthValid: 0,
-        historyLengthInvalid: 0,
-        traceLength: 0,
-        trackmeta: []
-      },
+
       konsole: [],
       page: { title: "ebl.dshbrd", splayed: false },
       modals: { credits: false },
       loadings: { app: false },
-      tracks: { history: [], buffered: null },
+      tracks: { history: [], buffered: null, streetsLog: null, streetsAhead: null },
       credits: [
         "routing: openrouteservice.org | OpenStreetMap contributors",
         "buffered tracks icon: outline by Jellycons from the Noun Project", "tracks icon: route by Andrejs Kirma from the Noun Project", "tracks review icon: Test Tube by Icon Island from the Noun Project", "proposed route icon: Vector by logan from the Noun Project",
@@ -544,23 +682,54 @@ export default {
   },
   methods: {
 
+    _SETSTREETISO: function() {
+
+      console.log("_SETstreetISO");
+
+
+      if (!this.actives.streetIso) {
+        console.log(`no streetiso, setting to null...`)
+        this.streetIso = null;
+        // this.modals.trackIso = false;
+      } else {
+        let features = this.$_.flatten(this.$_.filter(this.grpcenterlines.toGeoJSON().features, fea => {
+          return fea.properties.name == this.actives.streetIso
+        }));
+
+        this.streetIso = {
+          "type": "FeatureCollection",
+          "name": `Isolated Street ${this.actives.rideKey}`,
+          "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+          "features": features
+        }
+
+      }
+
+      // this.grpstreetiso.bringToFront()
+
+    },
     _SETRIDEISO: function() {
 
       console.log("_SETRIDEISO");
 
 
       if (!this.actives.rideIso) {
+        console.log(`no rideiso, setting to null...`)
         this.rideIso = null;
         // this.modals.trackIso = false;
       } else {
+        console.log(`in setride iso, pulling from ${this.tracks.history.features.length} features`)
+        let features = this.$_.flatten(this.$_.filter(this.tracks.history.features, fea => {
+          return fea.properties.name == this.actives.rideKey
+        }));
+
+        console.log("features", features);
 
         this.rideIso = {
           "type": "FeatureCollection",
           "name": `Isolated Ride ${this.actives.rideKey}`,
           "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-          "features": this.$_.flatten(this.$_.filter(this.tracks.history.features, fea => {
-            return fea.properties.name == this.actives.rideKey
-          }))
+          "features": features
         }
 
       }
@@ -570,24 +739,56 @@ export default {
     },
     _MAPRIDEISO: function() {
 
-      console.log("_mapRIDEISO");
+      console.log("_mapRIDEISO's this.rideIso", this.rideIso);
 
       this.grpisotracks.clearLayers()
       if (this.rideIso) {
 
 
-        // this.isoTrack = this._GETACTIVERIDEKEYOB()
 
         // light it up (so to speak)
-        L.geoJSON(this.rideIso, { style: this._STILE('iso') }).addTo(this.grpisotracks)
+        L.geoJSON(this.rideIso, { pane: 'pnIso', style: this._STILE('iso') }).addTo(this.grpisotracks)
+
         this.grpisotracks.bringToFront()
-          // this.MAP.fitBounds(this.grpisotracks.getBounds())
-        this._LAUDIT('grpisotracks', true)
+        this.MAP.fitBounds(this.grpisotracks.getBounds())
+        this.$_.findWhere(this.layers, { group: "grpisotracks" }).on = true
+          // this._LAUDIT()
+
+        this._META()
           // pull the panel
 
       }
 
       this.grpisotracks.bringToFront()
+
+    },
+    _MAPSTREETISO: function() {
+
+      console.log("_mapSTREETISO");
+
+      this.grpstreetiso.clearLayers()
+      if (this.streetIso) {
+
+
+
+        // light it up (so to speak)
+        L.geoJSON(this.streetIso, { pane: 'pnStreetIso', style: this._STILE('streetiso') }).addTo(this.grpstreetiso)
+          .bindPopup(layer => {
+            return `<h5 class="is-size-5">${layer.feature.properties.name} (${this.$TURFLENGTH(this.grpstreetiso.toGeoJSON()).toFixed(1)}km)</h5>`;
+          })
+          .on("popupclose", () => { this.actives.streetIso = null; })
+          .openPopup()
+
+        // this.grpstreetiso.bringToFront()
+        this.$_.findWhere(this.layers, { group: "grpstreetiso" }).on = true
+
+        // this._META()
+        // pull the panel
+
+        if (this.actives.streetIso && this.grpstreetiso.getBounds().isValid()) {
+          this.MAP.fitBounds(this.grpstreetiso.getBounds())
+        }
+      }
 
     },
     _GETACTIVERIDEKEYOB: function() {
@@ -621,8 +822,8 @@ export default {
         case 'centerlines':
           return { color: `#4aa`, fill: false, width: 1, opacity: 0 }
           break;
-        case 'trace':
-          return { dashArray: "2 5 10", color: `#87D100`, fill: false, weight: 12, opacity: .8 }
+        case 'streetiso':
+          return { dashArray: "2 5 10", color: `#F72585`, fill: false, weight: 12, opacity: .8 }
           break;
         case 'untraversed':
           return { color: "#0D7CD6", fillColor: "#0D7CD6", fill: true, weight: 2, opacity: .88 }
@@ -822,7 +1023,7 @@ export default {
 
       // if (this.tracks.history && this.tracks.history.length > 0) {
       // if (this.tracks.history && this._GETFILTEREDTRACKS().features.length > 0) {
-      if (this._GETFILTEREDTRACKS() && this._GETFILTEREDTRACKS().features.length > 0) {
+      if (this._GETFILTEREDTRACKS() && this._GETFILTEREDTRACKS().features && this._GETFILTEREDTRACKS().features.length > 0) {
         this.loadings.app = true;
 
         /*let ar = this.$_.find(this.tracks.history, t => {
@@ -882,10 +1083,13 @@ export default {
       this.$nextTick(() => {
 
         this._META('history')
+          // if (this.actives.rideIso) { this._SETRIDEISO() }
+        this._SETRIDEISO()
       })
     },
     keyMonitor: function(e) {
 
+      if (e.key == "\`") { this.page.splayed = !this.page.splayed }
       if (e.altKey) { this.page.splayed = !this.page.splayed }
 
     },
@@ -913,11 +1117,44 @@ export default {
 
       this.meta.historyLengthValid = this.$TURFLENGTH(this.grphistorytracksValid.toGeoJSON())
       this.meta.historyLengthInvalid = this.$TURFLENGTH(this.grphistorytracksInvalid.toGeoJSON())
+      this.meta.isolength = this.$TURFLENGTH(this.grpisotracks.toGeoJSON(), { units: "kilometers" })
+
+      // let spi = this.$_.groupBy(this.$_.filter(this.tracks.streetsLog, s => {
+      //   return s.rideKey == this._GETACTIVERIDEKEYOB().properties.name.replace(' #', '_')
+      // }), 'streetName');
+
+      this.meta.streetsPerIso = this._GETACTIVERIDEKEYOB() ? this.$_.sortBy(this.$_.groupBy(this.$_.filter(this.tracks.streetsLog, s => {
+        return s.rideKey == this._GETACTIVERIDEKEYOB().properties.name.replace(' #', '_')
+      }), 'streetName'), so => {
+        return so.length * -1
+      }) : []
+
+      // console.log("spi", spi);
+      //   this.meta.streetsPerIso =
+      // }
+
+
+      // FoR EAch CENteRLINE'S cEnTERPOinT
+      // this.$_.each(this.grpcenterlines.toGeoJSON().features, fea => {
+
+      //     let centerPoint = this.$TURF_center(this.$TURFCOMBINE(fea))
+
+
+      //     // is tHe FEAtUre'S CentERpoINT WIThin (The BuFfERED vERSion of) our history?
+      //     let w = this.$TURF_booleanwithin(centerPoint, this.grpbuffered.toGeoJSON().features[0])
+
+      //     // hOW aBOut thIs - is The FeATUre'S CeNtERPoInT Also WiThin oUR bUFfErEd trACE lInE?
+      //     if (w) {
+      //       // console.log('fea w/in history buff', fea)
+      //       this.meta.isolist.push(fea.properties.name)
+      //         // L.geoJSON(fea, { style: this._STILE('debug') }).addTo(this.grpdebug)
+      //         //  if SO WE ligHt eM up bY AdDiNg thEm tO GrPtrACEceNTerlINeS
+      //         // L.geoJSON(this.$TURFBUFFER(this.$TURFH.lineString(fea.geometry.coordinates[0]), 50, { units: "feet" }), { style: this._STILE('untraversed') }).addTo(this.grptrace)
+      //     }
+      //   }) //EETch.grpceNTeRLiNes
 
     },
     _METAOG: function(w) {
-
-      console.log("this.grphistorytracksValid.getLayers().length", this.grphistorytracksValid.getLayers().length);
 
       this.grpdebug.clearLayers()
 
@@ -1035,16 +1272,39 @@ export default {
           .addTo(this.grpbuffered);
 
         this.grphistorytracksValid;
-        this._LAUDIT('grpbuffered', true)
-        this.grpisotracks.bringToFront()
+        this.$_.findWhere(this.layers, { group: "grpbuffered" }).on = true
 
       } //traxbuhfrd
       ,
+    _GROUPGET: function(g) {
+
+      switch (g) {
+        case 'grphistorytracksValid':
+          return this.grphistorytracksValid
+          break;
+        case 'grphistorytracksInvalid':
+          return this.grphistorytracksInvalid
+          break;
+        case 'grpisotracks':
+          return this.grpisotracks
+          break;
+        case 'grpbuffered':
+          return this.grpbuffered
+          break;
+        case 'grpstreetiso':
+          return this.grpbuffered
+          break;
+      } //switch
+
+
+
+    }, //groupget
     _SETROUTE: function() {
 
         let P = {
           ridekey: this.actives.rideKey ? this.actives.rideKey : '$',
           rideiso: this.actives.rideIso ? 'S' : '$',
+          streetiso: this.actives.streetIso ? this.actives.streetIso : '$',
           basemap: this.actives.baseMap ? this.actives.baseMap : '$',
           splayed: this.page.splayed ? 'S' : '$',
           query: this.actives.queryString ? this.actives.queryString : '$',
@@ -1055,7 +1315,28 @@ export default {
         }); //rejplace
       } //setRoute
       ,
-    _LAUDIT: function(H, T) {
+    _LAUDIT: function() {
+      console.log("_LAUDIT");
+
+      // let offs = this.$_.filter(this.layers, l => {
+      //   return !l.on
+      // })
+      // let onns = this.$_.filter(this.layers, l => {
+      //   return l.on
+      // })
+
+      this.$_.each(this.cmpLayerOffs, o => {
+        let g = this._GROUPGET(o.group);
+        this.MAP.removeLayer(g)
+      })
+      this.$_.each(this.cmpLayerOnns, o => {
+        let g = this._GROUPGET(o.group);
+        this.MAP.addLayer(g);
+        g.bringToFront()
+      })
+
+    }, //laudit
+    _LAUDITOG: function(H, T) {
 
 
         let c = null;
@@ -1139,6 +1420,13 @@ export default {
         } //handler
     } //loadings
     ,
+    "layers": {
+      deep: true,
+      handler: function(vnew, vold) {
+          this._LAUDIT()
+        } //handler
+    } //loadings
+    ,
     "tracks.buffered": {
       handler: function(vnew, vold) {
 
@@ -1193,26 +1481,48 @@ export default {
 
       handler: function(vnew, vold) {
           if (this.tracks.history) { this._MAPHISTORY() }
-          this.actives.rideIso = true;
+          this.actives.rideIso = vnew ? true : false;
+
           this._SETROUTE()
         } //handler
 
     } //ridekey
     ,
-    "actives.rideIso": {
+    "actives.streetIso": {
 
       handler: function(vnew, vold) {
-          // this._MAPHISTORY()
-          if (this.tracks.history) { this._SETRIDEISO() } //this isolates the geoms from master per current rideKey, sets isoRide (see below)
+          this._SETSTREETISO()
           this._SETROUTE()
         } //handler
 
     } //ridekey
+    /*    ,
+        "actives.rideIso": {
+
+          handler: function(vnew, vold) {
+              console.log("actives.rideIso handler finds vnew==", vnew)
+              // if (this.tracks.history) { this._SETRIDEISO() } //this isolates the geoms from master per current rideKey, sets isoRide (see below)
+              this._SETROUTE()
+            } //handler
+
+        } //ridekey*/
     ,
     "rideIso": {
 
       handler: function(vnew, vold) {
           this._MAPRIDEISO()
+        } //handler
+
+    } //ridekey
+    ,
+    "streetIso": {
+
+      handler: function(vnew, vold) {
+          if (vnew) {
+            this.page.splayed = true;
+          }
+
+          this._MAPSTREETISO()
         } //handler
 
     } //ridekey
