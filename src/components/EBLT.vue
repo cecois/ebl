@@ -62,16 +62,50 @@
         </div>
       </div>
     </div nb="/.columns.parentOf.konsole">
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+      <!-- <div id="navbarBasicCurrentStreet" class="navbar-menu"> -->
+      <p class="currentStreet">
+        <div v-if="this.currentStreet" class="level-item has-text-centered">
+          <!-- <div> -->
+          <!-- <p :class="['title','ebl-dash-item']"> -->
+          <div id="streetPlateParent">
+            <div id="streetPlateContentWrapper">
+              <div id="number">
+                {{_CMPCURRENTSTREETSTRING}}
+              </div>
+            </div>
+          </div>
+          <!-- </p> -->
+          <!-- </div> -->
+        </div>
+      </p>
+      <!-- </div> -->
+    </nav>
     <!-- FOOTER -->
-    <footer class="footer pt-1 pb-1 has-text-centered">
+    <!--     <nav class="currentStreet p-1 has-text-centered">
+      <div v-if="this.currentStreet" class="level-item has-text-centered">
+        <div>
+          <p :class="['title','ebl-dash-item']">
+            <div id="streetPlateParent">
+              <div id="streetPlateContentWrapper">
+                <div id="number">
+                  {{_CMPCURRENTSTREETSTRING}}
+                </div>
+              </div>
+            </div>
+          </p>
+        </div>
+      </div>
+    </nav> -->
+    <!--     <footer class="footer pt-1 pb-1 has-text-centered">
       <nav id="ebl-layers" class="level is-mobile pl-2 pr-2">
-        <!-- Left side -->
+      
         <div class="level-left">
           <div class="level-item">
             <a @click.default="_LAUDIT
 (L.handle)" v-for="L in layers" class="navbar-item">
               <i :class="[`${L.klass}`,L.on?'ebl-nav-on':'']"><span class="pl-2">{{L.abbrev}}</span></i>
-              <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
+      
             </a>
           </div>
           <div class="level-item">
@@ -80,13 +114,13 @@
           </div>
         </div>
         <div class="level-right pb-2">
-          <!-- <span class="is-family-code is-size-7 has-text-grey-lighter pr-2" v-html="`{basemap:${$_.findWhere(this.baseMaps, { handle: this.actives.baseMap }).name}}`"></span> -->
+      
           <figure v-for="bm in baseMaps" class="image is-24x24 mr-2">
             <img @click="actives.baseMap=bm.handle" :class="['bt_baseMap','is-rounded',bm.handle==actives.baseMap? 'active': '']" :src="bm.thmb">
           </figure>
         </div>
       </nav>
-    </footer>
+    </footer> -->
   </div nb="app root">
 </template>
 
@@ -98,7 +132,7 @@ export default {
 
     // here we do some intercepting of our colloquial router null, the '$'
     this.actives = {
-      baseMap: (!this.$route.params.basemap || this.$route.params.basemap == '$') ? 'stamen_terrain' : this.$route.params.basemap
+      baseMap: (!this.$route.params.basemap || this.$route.params.basemap == '$') ? 'carto_positron' : this.$route.params.basemap
     }
 
   },
@@ -142,6 +176,8 @@ export default {
       .style.zIndex = (p + 11);
     this.MAP.createPane('pnCenterlines')
       .style.zIndex = (p + 3);
+    this.MAP.createPane('pnCenterlines')
+      .style.zIndex = (p + 4);
     this.MAP.createPane('pnTrace')
       .style.zIndex = (p + 9);
 
@@ -150,6 +186,10 @@ export default {
 
     if (!this.grpbasemaps) {
       this.grpbasemaps = new L.featureGroup({ pane: 'pnBasemaps' }).addTo(this.MAP)
+    }
+
+    if (!this.grpvertices) {
+      this.grpvertices = new L.featureGroup({ pane: 'pnVertices' }).addTo(this.MAP)
     }
 
     if (!this.grpbrooklinepoly) {
@@ -241,6 +281,21 @@ export default {
       this.meta.centerlinesLength = this.$TURFLENGTH(this.grpcenterlines.toGeoJSON())
     });
 
+    $.getJSON('static/brookline-osm-centerlines-vertices.geojson', G => {
+      L.geoJSON(G, {
+        pointToLayer: function(feature, latlng) {
+          return L.circleMarker(latlng, {
+            radius: 8,
+            fillColor: "#ff7800",
+            color: "#000",
+            weight: 1,
+            opacity: 0,
+            fillOpacity: 0
+          });
+        }
+      }).addTo(this.grpvertices);
+    });
+
 
 
     this.loadings.app = false;
@@ -254,6 +309,108 @@ export default {
 
   },
   computed: {
+    _CMPCURRENTSTREETSTRING: function() {
+
+      const subs = [{
+        og: "Aisle",
+        re: "Asl"
+      }, {
+        og: "Avenue",
+        re: "Av"
+      }, {
+        og: "Parking",
+        re: "Pkng"
+      }, {
+        og: "Beechwood",
+        re: "Bchwd"
+      }, {
+        og: "Bikepath",
+        re: "Pth"
+      }, {
+        og: "Branch",
+        re: "Brnch"
+      }, {
+        og: "Circle",
+        re: "Cir"
+      }, {
+        og: "Connector",
+        re: "Cnctr"
+      }, {
+        og: "Court",
+        re: "Ct"
+      }, {
+        og: "Crescent",
+        re: "Cres"
+      }, {
+        og: "Crossway",
+        re: "Cxwy"
+      }, {
+        og: "Drive",
+        re: "Dr"
+      }, {
+        og: "Driveway",
+        re: "Way"
+      }, {
+        og: "Extension",
+        re: "Ext"
+      }, {
+        og: "Lane",
+        re: "Ln"
+      }, {
+        og: "Parkway",
+        re: "Pkwy"
+      }, {
+        og: "Path",
+        re: "Pth"
+      }, {
+        og: "Place",
+        re: "Pl"
+      }, {
+        og: "Road",
+        re: "Rd"
+      }, {
+        og: "Rotary",
+        re: "Rtry"
+      }, {
+        og: "Square",
+        re: "Sq"
+      }, {
+        og: "Street",
+        re: "St"
+      }, {
+        og: "Terrace",
+        re: "Ter"
+      }, {
+        og: "Trail",
+        re: "Trl"
+      }, {
+        og: "Turnpike",
+        re: "Pike"
+      }, {
+        og: "Vale",
+        re: "Vl"
+      }, {
+        og: "Way",
+        re: "Way"
+      }]
+
+      if (this.currentStreet) {
+        let pieces = this.currentStreet.split(" ")
+        let nom = __.map(pieces, piece => {
+          return __.findWhere(subs, {
+              og: piece
+            }) ?
+            __.findWhere(subs, {
+              og: piece
+            }).re :
+            piece
+        }).join(" ")
+
+        return nom;
+      } else {
+        return null;
+      }
+    },
     _BANNERBG: function() {
 
       let k = null;
@@ -276,16 +433,17 @@ export default {
     return {
       MAP: null,
       zpause: false,
+      currentStreet: null,
       border: null,
       debug: {},
       actives: {
         baseMap: null
       },
       baseMaps: [{
-        name: "Stamen Terrain",
-        handle: "stamen_terrain",
-        urii: "https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}@2x.png",
-        thmb: "https://stamen-tiles-b.a.ssl.fastly.net/terrain/16/19819/24242@2x.png",
+        name: "Carto Positron",
+        handle: "carto_positron",
+        urii: "https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png",
+        thmb: "https://cartodb-basemaps-c.global.ssl.fastly.net/light_all/18/79279/96968.png",
         hue: "light"
       }],
       traceFake: [
@@ -447,7 +605,7 @@ export default {
           this.trace.push(tf ? tf : null)
 
         },
-        1000);
+        5000);
 
     },
     _BANNERCO: function(w) {
@@ -515,6 +673,10 @@ export default {
         //  ThIs is a PrOpeR geOM mAde FRom Mrt
         let mrp = this.$TURFH.point([mrRecent.lng, mrRecent.lat])
 
+        // what strEET ARe We (mOSt likeLy) oN?
+        let np = this.$TURF_nearestpoint(mrp, this.grpvertices.toGeoJSON());
+        this.currentStreet = np.properties.name
+
 
         //  thiS Is A 100M buffEr AROUNd SAiD gEOm
         let bufferedTracePoint = this.$TURFBUFFER(mrp, 100, { units: "meters" });
@@ -547,7 +709,7 @@ export default {
 
           //  ANd MAke THe mAp FOlLoW US (MAybE)
           if (!this.zpause) {
-            this.MAP.setView(L.latLng(mrp.geometry.coordinates[1], mrp.geometry.coordinates[0]), 15, { animate: true })
+            this.MAP.setView(L.latLng(mrp.geometry.coordinates[1], mrp.geometry.coordinates[0]), 17, { animate: true })
           }
 
           // we AlSO WAnT A bUfFER aRoUNd ThE activE TraCE SO WE don't RecomMeND (BelOW) lengths we VeRy ReceNTLY cOvErEd
@@ -590,6 +752,7 @@ export default {
 
             // ...We look FOr CentERLiNe FeATUreS WHoSE CeNtERPOInts aRe WitHiN our BUfFEed TracePOINT
             this.$_.each(this.grpcenterlines.toGeoJSON().features, fea => {
+
                 let centerPoint = this.$TURF_center(fea)
                   // is tHe FEAtUre'S CentERpoINT WIThin (The BuFfERED vERSion of) our cURReNt tRaCePoINT?
                 let w = this.$TURF_booleanwithin(centerPoint, bufferedTracePoint)

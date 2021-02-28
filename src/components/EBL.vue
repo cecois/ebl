@@ -500,12 +500,28 @@ export default {
     }, //cmpLayerOffs
     cmpStreetsPerIso: function() {
 
+      // return this.$_.map(this.meta.streetsPerIso, spi => {
+      //   return {
+      //     streetName: this.$_.first(this.$_.uniq(this.$_.pluck(spi, 'streetName'))),
+      //     count: spi.length
+      //   }
+      // })
+
       return this.$_.map(this.meta.streetsPerIso, spi => {
         return {
           streetName: this.$_.first(this.$_.uniq(this.$_.pluck(spi, 'streetName'))),
           count: spi.length
         }
       })
+
+      // return this.$_.map(this.$_.uniq(this.$_.pluck(this.$_.first(this.meta.streetsPerIso), 'streetName')), uniqStreet => {
+      //   return {
+      //     streetName: uniqStreet,
+      //     count: this.$_.find(this.$_.first(this.meta.streetsPerIso), spi => {
+      //       return spi.streetName == uniqStreet
+      //     }).length
+      //   }
+      // })
 
     },
     cmpIncludedTrackNames: function() {
@@ -653,6 +669,20 @@ export default {
         urii: "https://tile.thunderforest.com/spinal-map/{z}/{x}/{y}.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
         thmb: "https://tile.thunderforest.com/spinal-map/18/79279/96968.png?apikey=4e07c12ddb92435fbaf5d077958a5f43",
         hue: "dark"
+      }, {
+        name: "Decimal (by Tristen Brown)",
+
+        handle: "mapbox_decimal",
+        urii: "https://api.mapbox.com/styles/v1/cecois/cj5mk8bee3i2w2qkg9al5viir/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
+        thmb: "https://api.mapbox.com/styles/v1/cecois/cj5mk8bee3i2w2qkg9al5viir/tiles/256/18/79279/96968@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
+        hue: "dark"
+      }, {
+        name: "Frank (by Clare Trainor)",
+
+        handle: "mapbox_frank",
+        urii: "https://api.mapbox.com/styles/v1/cecois/ckjresd9b3gxp19l7cumbgdpi/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
+        thmb: "https://api.mapbox.com/styles/v1/cecois/ckjresd9b3gxp19l7cumbgdpi/tiles/256/18/79279/96968@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
+        hue: "dark"
       }],
       layers: [],
 
@@ -664,7 +694,8 @@ export default {
       credits: [
         "routing: openrouteservice.org | OpenStreetMap contributors",
         "buffered tracks icon: outline by Jellycons from the Noun Project", "tracks icon: route by Andrejs Kirma from the Noun Project", "tracks review icon: Test Tube by Icon Island from the Noun Project", "proposed route icon: Vector by logan from the Noun Project",
-        "isolated track icon: Binoculars by praveen patchu from the Noun Project"
+        "isolated track icon: Binoculars by praveen patchu from the Noun Project",
+        "app icon: (altered from 'Bicycle' by) ibrandify, PK - https://thenounproject.com/search/?q=bicycle&i=2667656"
       ],
       classes: {
         "armygreen": "rgba(75, 83, 32, 1)",
@@ -1123,11 +1154,18 @@ export default {
       //   return s.rideKey == this._GETACTIVERIDEKEYOB().properties.name.replace(' #', '_')
       // }), 'streetName');
 
-      this.meta.streetsPerIso = this._GETACTIVERIDEKEYOB() ? this.$_.sortBy(this.$_.groupBy(this.$_.filter(this.tracks.streetsLog, s => {
-        return s.rideKey == this._GETACTIVERIDEKEYOB().properties.name.replace(' #', '_')
-      }), 'streetName'), so => {
-        return so.length * -1
-      }) : []
+      // this.meta.streetsPerIso = this._GETACTIVERIDEKEYOB() ? this.$_.sortBy(this.$_.groupBy(this.$_.filter(this.tracks.streetsLog, s => {
+      //   return s.rideKey == this._GETACTIVERIDEKEYOB().properties.name.replace(' #', '_')
+      // }), 'streetName'), so => {
+      //   return so.length * -1
+      // }) : []
+
+      this.meta.streetsPerIso = this._GETACTIVERIDEKEYOB() ?
+        this.$_.sortBy(this.$_.groupBy(this.$_.filter(this.tracks.streetsLog, s => {
+          return s.rideKey == this._GETACTIVERIDEKEYOB().properties.name.replace(' #', '_')
+        }), 'streetName'), so => {
+          return so.length * -1
+        }) : []
 
       // console.log("spi", spi);
       //   this.meta.streetsPerIso =

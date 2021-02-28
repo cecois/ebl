@@ -12,6 +12,13 @@ font-weight:800;
 // 	src: local('Sulphur Point'),local('Sulphur Point'),url('assets/fonts/SulphurPoint-Regular.ttf') format('truetype');
 // }
 
+@font-face {
+	font-family: 'Hanley Pro Slim';
+	font-style: normal;
+	font-weight:400m;
+	src: local('Hanley Pro Slim'),local('Hanley Pro Slim'),url('assets/fonts/Hanley-Pro-Slim.otf') format('truetype');
+}
+
 /*
     ____  __  ____    __  ______       ____ _    ____________      ________
    / __ )/ / / / /   /  |/  /   |     / __ \ |  / / ____/ __ \____/  _/ __ \___
@@ -53,6 +60,31 @@ $appWhite:$ebl-white;
   background: $persimmon; /* Gecko Browsers */
   color:$appWhite;
 }
+
+#streetPlateParent {
+  display: block;
+  // width: 450px;
+  // height: 100px;
+  background-color: #FFF;
+  border-radius: 10px;
+  padding:2px 2px 1px;
+  line-height:1.1;
+  vertical-align: middle;
+}
+  
+#streetPlateContentWrapper {
+  text-align: center;
+border: 3px solid;
+  color: #000000;
+  border-radius:10px;
+  font-family: "Hanley Pro Slim";
+  // font-size: 70px;
+  font-size: 3em;
+  font-weight: 800;
+}
+
+
+
 
 a.street{
 	.on{
@@ -297,6 +329,11 @@ height:80px;
 }
 }
 
+// .currentStreet{
+// 		position:fixed;
+// 		bottom:4vh;
+// 	height:6vh;margin:0;
+// }
 .footer{
 	z-index: 7;width:100%;bottom:0;left:0;
 		position:fixed;
