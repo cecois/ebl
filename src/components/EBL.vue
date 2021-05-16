@@ -18,8 +18,12 @@
         <div class="level-item has-text-centered">
           <div>
             <p class="heading ebl-dash-heading">
-              <a @click.default="page.splayed=!page.splayed" class="navbar-item is-size-1">
+              <a @click.default="page.splayed=!page.splayed" class="navbar-item is-pulled-left">
                 <i :class="['fas',page.splayed?'fa-star-half-alt':'fa-star-half',page.splayed?'ebl-nav-off':'ebl-nav-on']"></i>
+                <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
+              </a>
+              <a @click.default="page.paneledatall=!page.paneledatall" class="navbar-item">
+                <i :class="[page.paneledatall?'far fa-map':'fas fa-map',(page.paneledatall)?'ebl-nav-off':'ebl-nav-on']"></i>
                 <!-- <p class="ml-2 has-text-centered is-size-7">{{L.abbrev}}</p> -->
               </a>
             </p>
@@ -70,27 +74,28 @@
               <article class="tile is-child notification has-text-centered">
                 <p class="title">km complete</p>
                 <p v-if="_GETACTIVERIDEKEYOB()" class="ebl-filter-warning">as of {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</p>
-                <p :class="['title','ebl-dash-item']">{{meta.historyLengthValid.toFixed(1)}}</p>
+                <p :class="['title','ebl-dash-item']">{{(meta.centerlinesLength-meta.remaining).toFixed(1)}}</p>
                 <p class="has-text-grey-lighter">within town border</p>
               </article>
             </div>
             <div class="tile is-parent pt-3">
               <article class="tile is-child notification has-text-centered pt-6">
-                <p class="title mt-3">% complete</p>
+                <p class="title mt-3">% completed</p>
                 <pie-chart height="200px" :legend=false :donut=true :data="_CHARTPIECOMPLETE('data')" :colors="_CHARTPIECOMPLETE('colors')"></pie-chart>
-                <p :class="['mt-2','title','ebl-dash-item']">{{((meta.historyLengthValid/meta.centerlinesLength)*100).toFixed(1)}}</p>
+                <p :class="['mt-2','title','ebl-dash-item']">{{(((meta.centerlinesLength-meta.remaining)/meta.centerlinesLength)*100).toFixed(1)}}</p>
                 <p v-if="_GETACTIVERIDEKEYOB()" class="ebl-filter-warning">as of {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</p>
               </article>
             </div>
           </div>
           <div class="tile is-parent">
-            <article class="tile is-child notification has-text-centered">
-              <p class="title">disqualified</p>
-              <div class="content">
-                <p :class="['title','ebl-dash-item']">{{meta.historyLengthInvalid.toFixed(1)}}km ({{((meta.historyLengthInvalid/meta.historyLengthValid)*100).toFixed(1)}} % of ttl riddn)</p>
-                <p v-if="_GETACTIVERIDEKEYOB()" class="ebl-filter-warning">as of {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</p>
-              </div>
-              <p class="has-text-grey-lighter">segments determined to be outta town</p>
+            <article class="tile is-child has-text-centered notification">
+              <p class="title">streets ahead</p>
+              <!-- <p class="">streets not yet touched</p> -->
+              <p class="has-text-grey-light is-size-7">
+                <!-- <span v-for="str in tracks.streetsAhead">{{str}}, </span> -->
+                <!-- <span v-for="str in this._STREETSAHEAD()">{{str}}, </span> -->
+                <a v-for="str in this._STREETSAHEAD()" :class="[actives.streetIso==str?'street-on':'street']" @click.prevent="actives.streetIso=str==actives.streetIso?null:str">{{str}}, </a>
+              </p>
             </article>
           </div>
         </div>
@@ -140,14 +145,13 @@
               <span>calculated per isolated track, empty otherwise</span>
             </p>
           </article>
-          <article class="tile is-child has-text-centered">
+          <!-- <article class="tile is-child has-text-centered">
             <p class="title">streets ahead</p>
-            <!-- <p class="">streets not yet touched</p> -->
             <p class="">
-              <!-- <span v-for="str in tracks.streetsAhead">{{str}}, </span> -->
+              <span v-for="str in this._STREETSAHEAD()">{{str}}, </span>
               <a :class="[actives.streetIso==str?'street-on':'street']" @click.prevent="actives.streetIso=str==actives.streetIso?null:str" v-for="str in tracks.streetsAhead">{{str}}, </a>
             </p>
-          </article>
+          </article> -->
         </div>
       </div NB="/.tile.is-ancestor">
     </div NB="/#ebl-dashboard-wrapper">
@@ -162,46 +166,48 @@ MM.    `7MMF'MM    MM   ,pm9MM MM.    `7MMF' MM   Y  , `YMMMa.
   `"bmmmdPY  `Mbod"YML.`Moo9^Yo. `"bmmmdPY .JMMmmmmMMM M9mmmP'
 ggz
  -->
-    <div v-if="page.splayed" class="container is-fullhd pt-6" id="ebl-dashboard-wrapper-splayed">
-      <nav class="level">
-        <div class="level-item has-text-centered">
-          <div class="has-text-centered">
-            <p class="has-text-centered" id="">
-              <p class="">%</p>
-              <p class="title">
-                <pie-chart position="relative" height="50px" width="33%" :legend=false :donut=true :data="_CHARTPIECOMPLETE('data')" :colors="_CHARTPIECOMPLETE('colors')"></pie-chart>
+    <div v-if="page.paneledatall">
+      <div v-if="page.splayed" class="container is-fullhd pt-6" id="ebl-dashboard-wrapper-splayed">
+        <nav class="level">
+          <div class="level-item has-text-centered">
+            <div class="has-text-centered">
+              <p class="has-text-centered" id="">
+                <p class="">%</p>
+                <p class="title">
+                  <pie-chart position="relative" height="50px" width="33%" :legend=false :donut=true :data="_CHARTPIECOMPLETE('data')" :colors="_CHARTPIECOMPLETE('colors')"></pie-chart>
+                </p>
               </p>
-            </p>
+            </div>
+          </div>
+          <div class="level-item has-text-centered">
+            <div>
+              <p class="heading">km cmplt</p>
+              <p class="title">{{(meta.centerlinesLength-meta.remaining).toFixed(1)}}</p>
+            </div>
+          </div>
+          <div v-if="_GETACTIVERIDEKEYOB()" class="level-item has-text-centered">
+            <div>
+              <p class="heading">Isltd Rid</p>
+              <p class="title">{{_GETACTIVERIDEKEYOB().properties.name}}
+                <div class="has-text-grey-light is-size-7">
+                  {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</div>
+              </p>
+            </div>
+          </div>
+          <div v-if="_GETACTIVERIDEKEYOB()" class="level-item has-text-centered">
+            <div>
+              <p class="heading">IsltdRid.len</p>
+              <p class="title">{{meta.isolength.toFixed(1)}}</p>
+            </div>
+          </div>
+        </nav>
+        <div class="columns">
+          <div class="column has-text-centered is-size-6">
+            <p v-if="_GETACTIVERIDEKEYOB()" class="ebl-filter-warning">#s as of {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</p>
           </div>
         </div>
-        <div class="level-item has-text-centered">
-          <div>
-            <p class="heading">km cmplt</p>
-            <p class="title">{{meta.historyLengthValid.toFixed(1)}}</p>
-          </div>
-        </div>
-        <div v-if="_GETACTIVERIDEKEYOB()" class="level-item has-text-centered">
-          <div>
-            <p class="heading">Isltd Rid</p>
-            <p class="title">{{_GETACTIVERIDEKEYOB().properties.name}}
-              <div class="has-text-grey-light is-size-7">
-                {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</div>
-            </p>
-          </div>
-        </div>
-        <div v-if="_GETACTIVERIDEKEYOB()" class="level-item has-text-centered">
-          <div>
-            <p class="heading">IsltdRid.len</p>
-            <p class="title">{{meta.isolength.toFixed(1)}}</p>
-          </div>
-        </div>
-      </nav>
-      <div class="columns">
-        <div class="column has-text-centered is-size-6">
-          <p v-if="_GETACTIVERIDEKEYOB()" class="ebl-filter-warning">#s as of {{$MOMENT(_GETACTIVERIDEKEYOB().properties.time).format('YY.MMM.DD')}}</p>
-        </div>
-      </div>
-    </div NB="#/ebl-dashboard-wrapper-splayed">
+      </div NB="#/ebl-dashboard-wrapper-splayed">
+    </div>
     <!-- FOOTER -->
     <footer class="footer pt-1 pb-1 has-text-centered">
       <div id="ebl-layers" class="level is-mobile pl-2 pr-2 is-family-monospace">
@@ -232,7 +238,7 @@ export default {
   created: function() {
 
     // here we do some intercepting of our colloquial router null, the '$'
-
+    window.addEventListener('keydown', this.keyMonitor)
 
 
   },
@@ -252,7 +258,6 @@ export default {
     }
 
     // this.CONFIG = CONFIG
-    window.addEventListener('keydown', this.keyMonitor)
     this.loadings.app = true;
 
     this.konsole = [{ msg: new Date(), klass: 'is-info', timeout: 20, timeout: 20 }]
@@ -262,11 +267,13 @@ export default {
         zoomControl: false,
         center: [42, -72],
         attributionControl: false,
-        zoom: 11
+        zoom: 11,
+        preferCanvas: false
       })
       .on('moveend', e => {
         this.actives.bboxString = this.MAP.getBounds().toBBoxString()
       })
+      // .bindPopup('Hello')
 
 
 
@@ -289,6 +296,8 @@ export default {
       .style.zIndex = (p + 8);
     this.MAP.createPane('pnIso')
       .style.zIndex = (p + 9);
+    this.MAP.createPane('pnRemain')
+      .style.zIndex = (p + 10);
 
     /*
         // groops
@@ -304,15 +313,22 @@ export default {
     */
 
     if (!this.grpbasemaps) {
-      this.grpbasemaps = new L.featureGroup().addTo(this.MAP)
+      this.grpbasemaps = new L.featureGroup()
+        .addTo(this.MAP)
     }
 
     if (!this.grpadminghost) {
-      this.grpadminghost = new L.featureGroup().addTo(this.MAP)
+      this.grpadminghost = new L.featureGroup()
+        /*        .on('click', e => {
+                  console.log("e", e)
+                    let popup = e.target.getPopup();
+                    popup.setContent('hi frm 43');
+                })*/
+        .addTo(this.MAP)
     }
     if (!this.grphistorytracksValid) {
       this.grphistorytracksValid = new L.featureGroup().addTo(this.MAP)
-      this.layers.push({ menued: false, group: "grphistorytracksValid", handle: 'grphistorytracksvalid', on: true, abbrev: "grphistorytracksValid", klass: 'icon-noun_buffer', fz: 1 })
+      this.layers.push({ menued: true, group: "grphistorytracksValid", handle: 'grphistorytracksvalid', on: true, abbrev: "trksvlid", klass: 'icon-noun_buffer', fz: 1 })
     }
     if (!this.grphistorytracksInvalid) {
       this.grphistorytracksInvalid = new L.featureGroup().addTo(this.MAP)
@@ -346,6 +362,11 @@ export default {
     if (!this.grpstreetiso) {
       this.grpstreetiso = new L.featureGroup().addTo(this.MAP)
       this.layers.push({ menued: true, group: "grpstreetiso", handle: 'grpstreetiso', on: false, abbrev: "strt", klass: 'fa fa-road', fz: 4 })
+    }
+
+    if (!this.grpahead) {
+      this.grpahead = new L.featureGroup().addTo(this.MAP)
+      this.layers.push({ menued: true, group: "grpahead", handle: 'grpahead', on: false, abbrev: "ahd", klass: 'fa fa-binoculars', fz: 4 })
     }
 
 
@@ -386,9 +407,9 @@ export default {
       this.tracks.streetsLog = H;
     });
 
-    $.getJSON('static/streets-ahead.json', H => {
+    /*$.getJSON('static/streets-ahead.json', H => {
       this.tracks.streetsAhead = H;
-    });
+    });*/
 
     axios
       .get(`static/brookline-outline.geojson`)
@@ -427,6 +448,27 @@ export default {
       }
     });
 
+
+    axios
+      .get(`static/ebl-remaining.geojson`)
+      .then(response => {
+
+        L.geoJSON(response.data, {
+            style: this._STILE('remaining'),
+            snapIgnore: true
+          })
+          .addTo(this.grpahead)
+          .on('click', e => {
+            this.actives.streetIso = e.layer.feature.properties.name
+              /*let popup = e.target.getPopup();
+              popup.setContent('hi frm 43');*/
+          })
+      }) //axios.then
+      .catch(e => {
+        // this.konsole.push({ msg: e, klass: "error", timeout: 20 })
+        this.konsole = [{ msg: e, klass: "error", timeout: 20, sender: "axios.catch.remaining" }]
+      }) //axios.catch
+
     this.loadings.app = false;
 
     this.$nextTick(() => {
@@ -454,40 +496,6 @@ export default {
 
   },
   computed: {
-    // cmpIncludedTracks: function() {
-
-    //   // CoPY tHE HiStorY oB
-    //   let o = this.tracks.history;
-
-    //   if (this.actives.rideKey) {
-    //     o.features = this.$_.reject(this.tracks.history.features, fea => {
-    //       return fea.properties.time <= this._GETACTIVERIDEKEYOB().properties.time;
-    //     });
-
-    //   } //if.ridekey
-
-    //   return o;
-
-    //   if (this.actives.rideKey) {
-    //     // get the one track that matches ridekey
-    //     let itar = this.$_.find(this.tracks.history, t => {
-    //       return this.$_.first(t.features).properties.name == this.actives.rideKey
-    //     })
-
-    //     // return an array of all the histories up to and including that track's timestamp
-    //     return this.$_.map(this.$_.filter(this.tracks.history, itartrk => {
-
-    //       return this.$_.first(itartrk.features).properties.time <= this.$_.first(itar.features).properties.time
-    //     }), itarinctrk => {
-    //       return itarinctrk
-    //     })
-    //   } else {
-    //     // no ride key we just want a nice clean list of the track keys
-    //     return this.tracks.history
-    //   }
-
-    // },
-
     cmpLayerOnns: function() {
       return this.$_.sortBy(this.$_.filter(this.layers, l => {
         return l.on
@@ -500,13 +508,6 @@ export default {
     }, //cmpLayerOffs
     cmpStreetsPerIso: function() {
 
-      // return this.$_.map(this.meta.streetsPerIso, spi => {
-      //   return {
-      //     streetName: this.$_.first(this.$_.uniq(this.$_.pluck(spi, 'streetName'))),
-      //     count: spi.length
-      //   }
-      // })
-
       return this.$_.map(this.meta.streetsPerIso, spi => {
         return {
           streetName: this.$_.first(this.$_.uniq(this.$_.pluck(spi, 'streetName'))),
@@ -514,40 +515,12 @@ export default {
         }
       })
 
-      // return this.$_.map(this.$_.uniq(this.$_.pluck(this.$_.first(this.meta.streetsPerIso), 'streetName')), uniqStreet => {
-      //   return {
-      //     streetName: uniqStreet,
-      //     count: this.$_.find(this.$_.first(this.meta.streetsPerIso), spi => {
-      //       return spi.streetName == uniqStreet
-      //     }).length
-      //   }
-      // })
-
     },
     cmpIncludedTrackNames: function() {
 
       return this.actives.rideKey ? this.$_.pluck(this.$_.filter(this.menus.tracks, trk => {
-          return new Date(trk.trackTime).valueOf() <= new Date(this._GETACTIVERIDEKEYOB().properties.time).valueOf()
-        }), 'trackName') : this.$_.pluck(this.menus.tracks, 'trackName')
-        /*if (this.actives.rideKey) {
-          // get the one track that matches ridekey
-          let itar = this.$_.find(this.tracks.history, t => {
-            return this.$_.first(t.features).properties.name == this.actives.rideKey
-          })
-
-          // return an array of all the histories up to and including that track's timestamp
-          return this.$_.map(this.$_.filter(this.tracks.history, itartrk => {
-
-            return this.$_.first(itartrk.features).properties.time <= this.$_.first(itar.features).properties.time
-          }), itarinctrk => {
-            return this.$_.first(itarinctrk.features).properties.name
-          }).sort()
-        } else {
-          // no ride key we just want a nice clean list of the track keys
-          return this.$_.map(this.tracks.history, th => {
-            return this.$_.first(th.features).properties.name
-          }).sort()
-        }*/
+        return new Date(trk.trackTime).valueOf() <= new Date(this._GETACTIVERIDEKEYOB().properties.time).valueOf()
+      }), 'trackName') : this.$_.pluck(this.menus.tracks, 'trackName')
 
     },
     cmpTrackHistory: function() {
@@ -598,6 +571,12 @@ export default {
         splayed: null
       },
       baseMaps: [{
+        name: "Esri Standard",
+        handle: "esri_standard",
+        urii: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+        thmb: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/15/12124/9910",
+        hue: "light"
+      }, {
         name: "Stamen Toner Lite",
         handle: "stamen_toner_lite",
         urii: "https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png",
@@ -671,23 +650,33 @@ export default {
         hue: "dark"
       }, {
         name: "Decimal (by Tristen Brown)",
-
         handle: "mapbox_decimal",
         urii: "https://api.mapbox.com/styles/v1/cecois/cj5mk8bee3i2w2qkg9al5viir/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
         thmb: "https://api.mapbox.com/styles/v1/cecois/cj5mk8bee3i2w2qkg9al5viir/tiles/256/18/79279/96968@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
         hue: "dark"
       }, {
         name: "Frank (by Clare Trainor)",
-
         handle: "mapbox_frank",
         urii: "https://api.mapbox.com/styles/v1/cecois/ckjresd9b3gxp19l7cumbgdpi/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
         thmb: "https://api.mapbox.com/styles/v1/cecois/ckjresd9b3gxp19l7cumbgdpi/tiles/256/18/79279/96968@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
+        hue: "dark"
+      }, {
+        name: "Blueprint (MapBox)",
+        handle: "mapbox_blueprint",
+        urii: "https://api.mapbox.com/styles/v1/cecois/cknlwpq880kur17qzql0je8i5/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
+        thmb: "https://api.mapbox.com/styles/v1/cecois/cknlwpq880kur17qzql0je8i5/tiles/256/18/79279/96968@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
+        hue: "dark"
+      }, {
+        name: "Standard Oil (MapBox)",
+        handle: "mapbox_standardoil",
+        urii: "https://api.mapbox.com/styles/v1/cecois/cknlwzllv0l2f17mz0li5o22i/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
+        thmb: "https://api.mapbox.com/styles/v1/cecois/cknlwzllv0l2f17mz0li5o22i/tiles/256/18/79279/96968@2x?access_token=pk.eyJ1IjoiY2Vjb2lzIiwiYSI6ImNqM3B3ZHJ3MzAwc2Qyd3BmNTdqeTlxcmcifQ.gZGEq-kc0KdSNWfh-3wumA",
         hue: "dark"
       }],
       layers: [],
 
       konsole: [],
-      page: { title: "ebl.dshbrd", splayed: false },
+      page: { title: "ebl.dshbrd", splayed: false, paneledatall: true },
       modals: { credits: false },
       loadings: { app: false },
       tracks: { history: [], buffered: null, streetsLog: null, streetsAhead: null },
@@ -723,13 +712,13 @@ export default {
         this.streetIso = null;
         // this.modals.trackIso = false;
       } else {
-        let features = this.$_.flatten(this.$_.filter(this.grpcenterlines.toGeoJSON().features, fea => {
+        let features = this.$_.flatten(this.$_.filter(this.grpahead.toGeoJSON().features, fea => {
           return fea.properties.name == this.actives.streetIso
         }));
 
         this.streetIso = {
           "type": "FeatureCollection",
-          "name": `Isolated Street ${this.actives.rideKey}`,
+          "name": `Isolated Undone Street ${this.actives.rideKey}`,
           "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
           "features": features
         }
@@ -800,15 +789,43 @@ export default {
       this.grpstreetiso.clearLayers()
       if (this.streetIso) {
 
+        /*console.log("this.streetIso", this.streetIso)
+        let isoLine = this.$TURFH.lineString(this.streetIso.features);
+        console.log("isoLine", isoLine)
+        let allLines = this.grpcenterlines.toGeoJSON();
+        let svPoint = this.$TURF_lineintersect(isoLine, allLines);
+        console.log("svPoint", svPoint)*/
 
+        // let line = this.grpcenterlines.toGeoJSON();
+
+        // let end = this.$TURFH.point(this.$_.last(this.streetIso.features))
+
+        /*let snapped = this.$TURF_nearestpointonline(line, point, { units: 'miles' });
+        console.log("snapped", snapped)*/
+        let svLat = this.$_.last(this.streetIso.features).geometry.coordinates[0][1];
+        let svLng = this.$_.last(this.streetIso.features).geometry.coordinates[0][0]
+        let cir = [svLat, svLng]
+        let circle = L.circle(cir, {
+            color: "rgb(255, 212, 49)",
+            fillColor: "rgb(255, 212, 49)",
+            fillOpacity: 0.5,
+            radius: 20
+          })
+          .bindPopup((one, two) => {
+            return `<div class="is-size-7">
+            <p><a target="_blank" href="https://www.google.com/maps/?cbll=${svLat},${svLng}&layer=c">goo</a> <span class="has-text-grey-lighter">||</span> <a target="_blank" href="https://www.mapillary.com/app/?lat=${svLat}&lng=${svLng}&z=19">llary</p>
+            </div>`;
+          })
+          .addTo(this.grpstreetiso)
+          .openPopup()
 
         // light it up (so to speak)
         L.geoJSON(this.streetIso, { pane: 'pnStreetIso', style: this._STILE('streetiso') }).addTo(this.grpstreetiso)
           .bindPopup(layer => {
             return `<h5 class="is-size-5">${layer.feature.properties.name} (${this.$TURFLENGTH(this.grpstreetiso.toGeoJSON()).toFixed(1)}km)</h5>`;
           })
-          .on("popupclose", () => { this.actives.streetIso = null; })
-          .openPopup()
+          // .on("popupclose", () => { this.actives.streetIso = null; })
+          // .openPopup()
 
         // this.grpstreetiso.bringToFront()
         this.$_.findWhere(this.layers, { group: "grpstreetiso" }).on = true
@@ -820,6 +837,12 @@ export default {
           this.MAP.fitBounds(this.grpstreetiso.getBounds())
         }
       }
+
+    },
+    _STREETSAHEAD: function() {
+
+
+      return this.grpahead ? this.$_.uniq(this.$_.pluck(this.$_.pluck(this.grpahead.toGeoJSON().features, 'properties'), "name")) : [] // => Atherton Road, Dudley Street...
 
     },
     _GETACTIVERIDEKEYOB: function() {
@@ -871,6 +894,9 @@ export default {
         case 'proposalBuffer':
           return { color: `rgba(36, 123, 160, 1)`, fill: true, opacity: .2 }
           break;
+        case 'remaining':
+          return { width: 6, color: "rgba(236, 88, 0, 1)", fill: false, fillOpacity: .3, opacity: 1 }
+          break;
         case 'buffer':
           return { color: "rgb(236, 88, 0)", fill: true, fillOpacity: .3, opacity: .5 }
           break;
@@ -878,7 +904,7 @@ export default {
           return { width: 5, color: "rgba(36, 123, 160, 1)", fill: false, opacity: .9 }
           break;
         case 'trackinvalid':
-          return { width: 5, color: "rgba(111, 26, 7, 1)", fill: false, opacity: .9 }
+          return { width: 5, color: "rgba(111, 26, 7, 1)", fill: false, opacity: .1 }
           break;
         case 'incomingHistory':
           // trackTime = o ? this.$MOMENT(o).unix() : this.$MOMENT().unix()
@@ -977,7 +1003,8 @@ export default {
     _CHARTPIECOMPLETE: function(w) {
 
       let k = null;
-      let D = { 'done (excluding disqualifieds)': this.meta.historyLengthValid, 'remaining': (this.meta.centerlinesLength - this.meta.historyLengthValid) }
+      // let D = { 'done (excluding disqualifieds)': this.meta.remaining ? (this.meta.centerlinesLength - this.meta.remaining) : 0, 'remaining': this.meta.remaining ? this.meta.remaining : 0 }
+      let D = { 'done (excluding disqualifieds)': (this.meta.centerlinesLength - this.meta.remaining), 'remaining': this.meta.remaining }
 
       switch (w) {
         case 'data':
@@ -1149,6 +1176,8 @@ export default {
       this.meta.historyLengthValid = this.$TURFLENGTH(this.grphistorytracksValid.toGeoJSON())
       this.meta.historyLengthInvalid = this.$TURFLENGTH(this.grphistorytracksInvalid.toGeoJSON())
       this.meta.isolength = this.$TURFLENGTH(this.grpisotracks.toGeoJSON(), { units: "kilometers" })
+
+      this.meta.remaining = this.$TURFLENGTH(this.grpahead.toGeoJSON(), { units: "kilometers" })
 
       // let spi = this.$_.groupBy(this.$_.filter(this.tracks.streetsLog, s => {
       //   return s.rideKey == this._GETACTIVERIDEKEYOB().properties.name.replace(' #', '_')
@@ -1331,6 +1360,9 @@ export default {
           break;
         case 'grpstreetiso':
           return this.grpbuffered
+          break;
+        case 'grpahead':
+          return this.grpahead
           break;
       } //switch
 
