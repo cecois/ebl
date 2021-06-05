@@ -28,47 +28,43 @@ import Chart from 'chart.js'
 
 Vue.use(Chartkick.use(Chart))
 
-const FLEXPOLY = require('@mapbox/polyline');
-const PENC = require('polyline-encoded')
-const HEREFLEX = require('./assets/here-flexpolyline.js')
-
-const TURFSIMPLE = require('@turf/simplify').default
-const TURFCLEAN = require('@turf/clean-coords').default
+// const TURFSIMPLE = require('@turf/simplify').default
+// const TURFCLEAN = require('@turf/clean-coords').default
 const TURFLENGTH = require('@turf/length').default
 const TURFMETA = require('@turf/meta')
-const TURFBUFFER = require('@turf/buffer').default
-const TURFPTGRID = require('@turf/point-grid').default
+	// const TURFBUFFER = require('@turf/buffer').default
+	// const TURFPTGRID = require('@turf/point-grid').default
 const TURFCOMBINE = require('@turf/combine').default
-const TURFDISTANCE = require('@turf/distance').default
-const TURFNEARESTPOINT = require('@turf/nearest-point').default
-const TURFDIFF = require('@turf/difference').default
-const TURFINTERSECT = require('@turf/intersect').default
-const TURFENVELOPE = require('@turf/envelope').default
+	// const TURFDISTANCE = require('@turf/distance').default
+	// const TURFNEARESTPOINT = require('@turf/nearest-point').default
+	// const TURFDIFF = require('@turf/difference').default
+	// const TURFINTERSECT = require('@turf/intersect').default
+	// const TURFENVELOPE = require('@turf/envelope').default
 	// const TURFSHORTESTPATH = require('@turf/shortest-path').default
-const TURFEXPLODE = require('@turf/explode').default
-const TURFSAMPLE = require('@turf/sample').default
-const TURFBOOLEANPOINTINPOLYGON = require('@turf/boolean-point-in-polygon').default
-const TURFBOOLEANWITHIN = require('@turf/boolean-within').default
-const TURFUNION = require('@turf/union').default
-const TURFFLIP = require('@turf/union').default
-const TURFBBOX = require('@turf/bbox').default
-const TURFCENTER = require('@turf/center').default
-const TURFCENTROID = require('@turf/centroid').default
-const TURFLINEINTERSECT = require('@turf/line-intersect').default
+	// const TURFEXPLODE = require('@turf/explode').default
+	// const TURFSAMPLE = require('@turf/sample').default
+	// const TURFBOOLEANPOINTINPOLYGON = require('@turf/boolean-point-in-polygon').default
+	// const TURFBOOLEANWITHIN = require('@turf/boolean-within').default
+	// const TURFUNION = require('@turf/union').default
+	// const TURFFLIP = require('@turf/union').default
+	// const TURFBBOX = require('@turf/bbox').default
+	// const TURFCENTER = require('@turf/center').default
+	// const TURFCENTROID = require('@turf/centroid').default
+	// const TURFLINEINTERSECT = require('@turf/line-intersect').default
 	// const TURFLINEOVERLAP = require('@turf/line-overlap').default
-const TURFBBOXCLIP = require('@turf/bbox-clip').default
-const TURFLINESPLIT = require('@turf/line-split').default
-const TURFPOLYGONTOLINE = require('@turf/polygon-to-line').default
-const TURFNEARESTPOINTONLINE = require('@turf/nearest-point-on-line').default
-const TURFPOINTTOLINEDISTANCE = require('@turf/point-to-line-distance').default
-const TURFBEARING = require('@turf/bearing').default
+	// const TURFBBOXCLIP = require('@turf/bbox-clip').default
+	// const TURFLINESPLIT = require('@turf/line-split').default
+	// const TURFPOLYGONTOLINE = require('@turf/polygon-to-line').default
+	// const TURFNEARESTPOINTONLINE = require('@turf/nearest-point-on-line').default
+	// const TURFPOINTTOLINEDISTANCE = require('@turf/point-to-line-distance').default
+	// const TURFBEARING = require('@turf/bearing').default
 
 
 // const TURFPOLYGONIZE = require('@turf/polygonize').default
 const TURFH = require('@turf/helpers')
-const TURFM = require('@turf/meta')
+	// const TURFM = require('@turf/meta')
 	// const TURFP2L = require('@turf/polygon-to-line')
-const TOGEOJSON = require('@tmcw/togeojson')
+	// const TOGEOJSON = require('@tmcw/togeojson')
 	// const GDAL = require('gdal')
 	// const GPXP = require('gpxparser')
 	// const GPXP = require('gpx-parse')
@@ -84,19 +80,7 @@ Vue.use(vueTopprogress, {
 Vue.config.productionTip = false;
 
 
-
-Object.defineProperty(Vue.prototype, '$PENC', {
-	value: PENC
-})
-
-Object.defineProperty(Vue.prototype, '$MBFLEXPOLY', {
-	value: FLEXPOLY
-})
-
-Object.defineProperty(Vue.prototype, '$HEREFLEX', {
-	value: HEREFLEX
-})
-
+/*
 Object.defineProperty(Vue.prototype, '$MOMENT', {
 	value: moment
 })
@@ -116,9 +100,7 @@ Object.defineProperty(Vue.prototype, '$TURF_center', {
 Object.defineProperty(Vue.prototype, '$TURF_pointtolinedistance', {
 		value: TURFPOINTTOLINEDISTANCE
 	})
-	// Object.defineProperty(Vue.prototype, '$TURF_shortestpath', {
-	// 	value: TURFSHORTESTPATH
-	// })
+	
 Object.defineProperty(Vue.prototype, '$TURF_nearestpoint', {
 	value: TURFNEARESTPOINT
 })
@@ -128,9 +110,7 @@ Object.defineProperty(Vue.prototype, '$TURF_bearing', {
 Object.defineProperty(Vue.prototype, '$TURF_lineintersect', {
 		value: TURFLINEINTERSECT
 	})
-	// Object.defineProperty(Vue.prototype, '$TURF_lineoverlap', {
-	// 	value: TURFLINEOVERLAP
-	// })
+	
 Object.defineProperty(Vue.prototype, '$TURF_linesplit', {
 	value: TURFLINESPLIT
 })
@@ -204,24 +184,14 @@ Object.defineProperty(Vue.prototype, '$TURFSAMPLE', {
 	value: TURFSAMPLE
 })
 
-// Object.defineProperty(Vue.prototype, '$GDAL', {
-// 		value: GDAL
-// 	})
-// Object.defineProperty(Vue.prototype, '$GPXP', {
-// 	value: GPXP
-// })
-
 Object.defineProperty(Vue.prototype, '$TOGEOJSON', {
 	value: TOGEOJSON
 })
-
+*/
 Object.defineProperty(Vue.prototype, '$CONFIG', {
 	value: CONFIG
 })
 
-// Object.defineProperty(Vue.prototype, '$SPORTSLIB', {
-// 	value: SportsLib
-// })
 
 /* eslint-disable no-new */
 new Vue({
