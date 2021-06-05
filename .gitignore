@@ -1,3 +1,5 @@
 src/CONFIG.json
 *CONFIG.json
 node_modules/
+dist/static/.DS_Store
+.DS_Store
