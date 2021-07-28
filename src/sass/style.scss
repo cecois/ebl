@@ -38,26 +38,32 @@ $dark-sienna: rgba(51, 15, 10, 1);
 $flax: rgba(239, 221, 141, 1);
 $lemon-yellow-crayola: rgba(244, 253, 175, 1);
 $naples-yellow:#F8E16C;
-$ebl-white:rgb(233,233,233);
+$off-white:rgb(233,233,233);
 $ebl-grey:rgb(170, 177, 187);
 $celadon-blue: rgba(36, 123, 160, 1);
 $sky-blue-crayola: rgba(120, 227, 253, 1);
 $barn-red: rgba(111, 26, 7, 1);
 $flickr-pink:#F72585;
-
 $proposed:$celadon-blue;
+$charcoal:rgba(40, 41, 34,.88);
 
-$appPrimary:$army-green;
-$appSecondary:$persimmon;
-$appDark:rgba(40, 41, 34,.88);
-$appWhite:$ebl-white;
+$appBrandPrimary:$army-green;
+$appBrandHighlightPrimary:$persimmon;
+$appBrandSecondary:$dark-sienna;
+$appBright:$naples-yellow;
+$appWhite:$off-white;
+$appBrandTertiary:$celadon-blue;
+$appBrandHighlightSecondary:$sky-blue-crayola;
+$appError:$barn-red;
+$appDark:$charcoal;
+
 
 ::selection {
-  background: $persimmon; /* WebKit/Blink Browsers */
+  background: $appBrandHighlightPrimary; /* WebKit/Blink Browsers */
   color:$appWhite;
 }
 ::-moz-selection {
-  background: $persimmon; /* Gecko Browsers */
+  background: $appBrandHighlightPrimary; /* Gecko Browsers */
   color:$appWhite;
 }
 
@@ -78,7 +84,6 @@ border: 3px solid;
   color: #000000;
   border-radius:10px;
   font-family: "Hanley Pro Slim";
-  // font-size: 70px;
   font-size: 3em;
   font-weight: 800;
 }
@@ -88,45 +93,59 @@ border: 3px solid;
 
 a.street{
 	.on{
-		color:$celadon-blue;
+		color:$appBrandTertiary;
 	}
-	color:$ebl-grey;
+	color:$appDark;
 	&:hover{
-		color:darken($ebl-grey,62%);
+		color:darken($appDark,62%);
 	}
 }
 
 #ebl-isoRide-wrapper{
 	min-height:4vh;
 	max-height:4vh;
-color:$sky-blue-crayola;
+color:$appBrandTertiary;
+}
+
+.app-faux-target{
+color:$appBrandTertiary;
+&:hover{
+	color:darken($appBrandTertiary,20%);cursor:pointer;
+}
 }
 
 .ebl-is-disabled{
 	cursor: not-allowed;
 }
 .ebl-bt-trackmenu{
-	&:hover{cursor:pointer;color:$sky-blue-crayola;}
+	&:hover{cursor:pointer;color:$appBrandTertiary;}
 }
 .ebl-bt-trackmenu-on{
-	color:$sky-blue-crayola;
+	color:$appBrandTertiary;
 	&:hover{cursor:pointer;color:$appDark;}
 }
 
+.ebl-generic-on{
+	color:$appBrandHighlightPrimary;
+}
+.ebl-generic-off{
+	color:$appWhite;
+}
+
 .ebl-filter-warning{
-	color:$persimmon;
+	color:$appBrandHighlightPrimary;
 }
 
 #ebl-brand{
-	background-color:$army-green;
+	background-color:$appBrandPrimary;
 	font-weight:800;
 	font-size:2em;
 	color:$appWhite;width:100%;
 }
 
 a{
-	color:$persimmon;
-	&:hover{color:darken($persimmon,12%);}
+	color:$appBrandHighlightPrimary;
+	&:hover{color:darken($appBrandHighlightPrimary,12%);}
 }
 
 #ebl-dashboard-wrapper{
@@ -151,7 +170,7 @@ a{
 }
 
 .ebl-dash-item{
-	color:$appSecondary;
+	color:$appBrandSecondary;
 	font-weight:800;
 	border-radius:.8em;
 	-moz-border-radius:.8em;
@@ -161,19 +180,19 @@ a{
 }
 
 .has-text-ebl-banner-info{
-	color:$persimmon;
+	color:$appBrandHighlightPrimary;
 }
 .has-text-ebl-important{
 	color:$appWhite;
 }
 .has-text-ebl-notso-important{
-	color:rgba( $persimmon, .5 )
+	color:rgba( $appBrandHighlightPrimary, .5 )
 }
 #trackHistoryPanel{
-		color:rgba($army-green,.8);
+		color:rgba($appBrandPrimary,.8);
 		a{text-decoration: none;}
 		a.included{
-			color:$persimmon;
+			color:$appBrandHighlightPrimary;
 		}
 		// position:fixed;top:10%;
 	}
@@ -196,7 +215,7 @@ a{
 		width:96%;
 	}
 	.modal-background{
-	background-color:$sky-blue-crayola;
+	background-color:$appBrandTertiary;
 	// color:$dark-sienna;
 	}
 }
@@ -210,10 +229,10 @@ a{
 	&:hover{
 		border:2px solid $appWhite;
 	}
-// .bt_baseMapThumb{height:22px;width:22px;border:1px solid $appPrimary;.active{border:2px solid $appSecondary;}}
+// .bt_baseMapThumb{height:22px;width:22px;border:1px solid $appPrimary;.active{border:2px solid $appBrandSecondary;}}
 }
 
-.bt_baseMap.active{border:3px solid $appSecondary;}
+.bt_baseMap.active{border:3px solid $appBrandHighlightPrimary;}
 
 .ebl-kick{
 left:90%;
@@ -225,24 +244,24 @@ cursor:not-allowed;
 }
 
 .has-text-danger{
-	color:$barn-red;font-weight:800;
+	color:$appError;font-weight:800;
 }
 .has-text-info{
-	color:$celadon-blue;
+	color:$appBrandTertiary;
 }
 
 
 .ebl-nav{
 &:hover{
-	color:$persimmon;
+	color:$appBrandHighlightPrimary;
 }
 	color:$barn-red;
 }
 
 .ebl-nav.ebl-nav-on
 {
-	color:$persimmon;
-	&:hover{color:darken($persimmon,12%);}
+	color:$appBrandHighlightPrimary;
+	&:hover{color:darken($appBrandHighlightPrimary,12%);}
 }
 
 .ebl-nav.is-diabled{
@@ -252,26 +271,26 @@ cursor:not-allowed;
 
 .ebl-footer-on
 {
-	color:$dark-sienna;
-	&:hover{color:lighten($dark-sienna,12%);}
+	color:$appError;
+	&:hover{color:lighten($appError,12%);}
 }
 
 .ebl-bg-within{
-	background-color:$army-green;
-	a{color:$ebl-white;
-		&:hover{color:$persimmon;}
+	background-color:$appBrandPrimary;
+	a{color:$appWhite;
+		&:hover{color:$appBrandHighlightPrimary;}
 	}
 }
 .ebl-bg-nearing{
-	background-color:$naples-yellow;
-	a{color:$ebl-white;
-		&:hover{color:$persimmon;}
+	background-color:$appBright;
+	a{color:$appWhite;
+		&:hover{color:$appBrandHighlightPrimary;}
 	}
 }
 .ebl-bg-without{
-	background-color:$barn-red;
-	a{color:$ebl-white;
-		&:hover{color:$ebl-white;}
+	background-color:$appError;
+	a{color:$appWhite;
+		&:hover{color:$appDark;}
 	}
 }
 
@@ -291,31 +310,31 @@ height:80px;
 #ddebug{
 	min-height:10vh;
 	z-index:2;
-	background-color:$persimmon;
-	color:$ebl-white;
+	background-color:$appBrandHighlightPrimary;
+	color:$appWhite;
 }
 
 #ebl-modal-dropzone{
 	.modal-background{
-		background-color:$lemon-yellow-crayola;
-		color:$dark-sienna;
+		background-color:$appBright;
+		color:$appDark;
 	}
 }
 
 .ebl-button{
-	color:$persimmon;
-	&:hover{color:darken($persimmon,12%);}
+	color:$appBrandHighlightPrimary;
+	&:hover{color:darken($appBrandHighlightPrimary,12%);}
 }
 .ebl-panel{
 	width:33%;
 	position:relative;
 	right:0;
-	background-color:rgba(255,255,255,.8);
+	background-color:$appBright;
 	padding:2em 1em;
 }
 
 .navbar-item{
-	color:$dark-sienna;
+	color:$appDark;
 }
 
 #konsole-wrapper{
@@ -329,11 +348,6 @@ height:80px;
 }
 }
 
-// .currentStreet{
-// 		position:fixed;
-// 		bottom:4vh;
-// 	height:6vh;margin:0;
-// }
 .footer{
 	z-index: 7;width:100%;bottom:0;left:0;
 		position:fixed;
@@ -344,7 +358,7 @@ height:80px;
 }
 
 #modal-credits{
-	color:white;font-weight:800;
+	color:$appWhite;font-weight:800;
 }
 
 
